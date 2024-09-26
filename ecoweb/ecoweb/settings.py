@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-bv!ws!^x*5riqkz$vg#3d(m21mzm58wc#taf9t-x3!(i4jqevx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['web.nightcover.com.tw', '127.0.0.1', 'localhost']
+
 
 
 # Application definition
