@@ -67,3 +67,9 @@ def calculate_strategy(request):
         return JsonResponse(context)
 
     return render(request, 'blog/post_list.html')
+
+def test(request):
+    print("hi")
+    # return render(request, 'blog')
+    return render(request, 'blog/post_list.html')
+    
