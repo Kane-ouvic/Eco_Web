@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stock Correlation Strategy</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'blog/css/styles.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'blog/css/styles.css' %}" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css"
+      rel="stylesheet"
+    />
   </head>
   <body>
-
     <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
         <span class="navbar-brand mb-0 h1">Stock Correlation Strategy</span>
@@ -28,33 +33,75 @@
             <div class="row">
               <div class="col-md-6">
                 <label for="stock1" class="form-label">Stock 1</label>
-                <input type="text" class="form-control" id="stock1" name="stock1" value="AAPL" required>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="stock1"
+                  name="stock1"
+                  value="AAPL"
+                  required
+                />
               </div>
               <div class="col-md-6">
                 <label for="stock2" class="form-label">Stock 2</label>
-                <input type="text" class="form-control" id="stock2" name="stock2" value="GLD" required>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="stock2"
+                  name="stock2"
+                  value="GLD"
+                  required
+                />
               </div>
             </div>
 
             <div class="row mt-3">
               <div class="col-md-6">
                 <label for="start_date" class="form-label">Start Date</label>
-                <input type="date" class="form-control" id="start_date" name="start_date" value="2021-01-01" required>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="start_date"
+                  name="start_date"
+                  value="2021-01-01"
+                  required
+                />
               </div>
               <div class="col-md-6">
                 <label for="end_date" class="form-label">End Date</label>
-                <input type="date" class="form-control" id="end_date" name="end_date" value="2024-01-01" required>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="end_date"
+                  name="end_date"
+                  value="2024-01-01"
+                  required
+                />
               </div>
             </div>
 
             <div class="row mt-3">
               <div class="col-md-6">
                 <label for="n_std" class="form-label">n * std</label>
-                <input type="number" class="form-control" id="n_std" name="n_std" value="2" required>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="n_std"
+                  name="n_std"
+                  value="2"
+                  required
+                />
               </div>
               <div class="col-md-6">
                 <label for="window_size" class="form-label">Window Size</label>
-                <input type="number" class="form-control" id="window_size" name="window_size" value="200" required>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="window_size"
+                  name="window_size"
+                  value="200"
+                  required
+                />
               </div>
             </div>
 
@@ -108,84 +155,9 @@
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
     <script>
-      // 提交表單並使用 AJAX 發送數據
-      $('#strategy-form').on('submit', function(event) {
-        event.preventDefault(); // 防止表單默認提交行為
-
-        $.ajax({
-          url: '/calculate-strategy/',  // 提交到你的Django後端的URL
-          type: 'POST',
-          data: $(this).serialize(),
-          headers: { 'X-CSRFToken': '{{ csrf_token }}' },
-          success: function(response) {
-            console.log(response); // 檢查返回的數據是否正確
-
-            // 繪製價格圖表
-            Highcharts.stockChart('price-chart', {
-              title: { text: 'Price & Spread' },
-              xAxis: {
-                categories: response.dates
-              },
-              series: [{
-                name: 'Stock 1 Prices',
-                data: response.stock1_prices
-              }, {
-                name: 'Stock 2 Prices',
-                data: response.stock2_prices
-              }, {
-                name: 'Spread',
-                data: response.spread
-              }]
-            });
-
-            // 繪製布林帶圖表
-            Highcharts.stockChart('bollinger-chart', {
-              title: { text: 'Bollinger Bands & Spread' },
-              xAxis: {
-                categories: response.dates
-              },
-              series: [{
-                name: 'Spread',
-                data: response.spread
-              }, {
-                name: 'Rolling Mean',
-                data: response.rolling_mean
-              }, {
-                name: 'Upper Band',
-                data: response.upper_band
-              }, {
-                name: 'Lower Band',
-                data: response.lower_band
-              }]
-            });
-
-            // 更新表格中的信號
-            let tableBody = $('#signal-table tbody');
-            tableBody.empty(); // 清空舊數據
-            response.signals.forEach(function(signal) {
-              let row = '<tr>' +
-                        '<td>' + signal.date + '</td>' +
-                        '<td>' + signal.type + '</td>' +
-                        '<td>' + signal.action_aapl + '</td>' +
-                        '<td>' + signal.price_aapl + '</td>' +
-                        '<td>' + signal.action_gld + '</td>' +
-                        '<td>' + signal.price_gld + '</td>' +
-                        '</tr>';
-              tableBody.append(row);
-            });
-
-            // 初始化 DataTable
-            if (!$.fn.DataTable.isDataTable('#signal-table')) {
-              $('#signal-table').DataTable();
-            }
-          },
-          error: function(xhr, status, error) {
-            console.error('Error details:', xhr, status, error); // 打印詳細錯誤訊息
-            alert('Error retrieving data: ' + error);
-          }
-        });
-      });
+      const csrfToken = "{{ csrf_token }}"; // 定義 CSRF token，讓外部JS文件能使用
     </script>
-
+    <script src="{% static 'blog/js/strategy.js' %}"></script>
+    <!-- 引入外部 JS 文件 -->
   </body>
 </html>
