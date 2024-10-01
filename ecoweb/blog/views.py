@@ -34,17 +34,19 @@ def calculate_strategy(request):
         # 將日期轉換成 UNIX 時間戳記（毫秒）
         timestamps = list(map(int, data1.index.view(np.int64) // 10**6))
 
-        # 儲存交易訊號及未實現損益
+        # 儲存交易訊號
         signals = []
         open_position = False  # 用於追蹤是否有持倉
         aapl_shares = 0
         gld_shares = 0
         hold_days = 0  # 增加持倉天數追蹤
+        unrealized_profit = 0  # 用於追蹤未實現損益的變化
         profit_and_loss = []  # 儲存每個時間點的未實現損益
 
         for i in range(len(spread)):
             if not open_position:
                 # 開倉條件：spread 超過上線或低於下線
+                profit_and_loss.append(unrealized_profit)  # 進場前保持未實現損益不變
                 if spread.iloc[i] > upper_band.iloc[i] and hold_days == 0:  # 確保持倉天數為0時才能開倉
                     # 賣出 AAPL，買入 GLD
                     aapl_shares = capital / data1['Close'].iloc[i]
@@ -80,12 +82,12 @@ def calculate_strategy(request):
             else:
                 # 增加最低持倉天數，避免每天都進出場
                 hold_days += 1
-                if hold_days < 100:  # 假設最少持倉 10 天
-                    continue
+                # 計算持倉期間的未實現損益
+                unrealized_profit = (aapl_shares * data1['Close'].iloc[i]) - (gld_shares * data2['Close'].iloc[i])
+                profit_and_loss.append(unrealized_profit)
 
-                # 計算當前未實現損益
-                current_profit_loss = (aapl_shares * data1['Close'].iloc[i]) - (gld_shares * data2['Close'].iloc[i])
-                profit_and_loss.append(current_profit_loss)
+                if hold_days < 50:  # 假設最少持倉 10 天
+                    continue
 
                 # 平倉條件：spread 回歸到中線
                 if spread.iloc[i] < rolling_mean.iloc[i]:
@@ -131,12 +133,13 @@ def calculate_strategy(request):
             'upper_band': list(upper_band),
             'lower_band': list(lower_band),
             'signals': signals,
-            'profit_and_loss': profit_and_loss  # 傳送未實現損益數據
+            'profit_and_loss': profit_and_loss  # 加入未實現損益
         }
 
         return JsonResponse(context)
 
     return render(request, 'blog/post_list.html')
+
 
 
 
