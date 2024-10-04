@@ -1,33 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stock Correlation Strategy</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'blog/css/styles.css' %}" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <nav class="navbar navbar-dark bg-dark">
-      <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">Stock Correlation Strategy</span>
-        <!-- 新增資訊 -->
-        <div class="d-flex">
-          <span class="navbar-text me-3">Welcome, User!</span>
-          <a href="#" class="btn btn-outline-light">Profile</a>
-          <a href="#" class="btn btn-outline-light ms-2">Logout</a>
-        </div>
-      </div>
-    </nav>
-
+{% extends 'blog/base.html' %}
+{% load static %}
+{% block content %}
     <div class="container mt-4">
       <div class="card">
         <div class="card-header bg-light">
@@ -165,5 +138,4 @@
     </script>
     <script src="{% static 'blog/js/strategy.js' %}"></script>
     <!-- 引入外部 JS 文件 -->
-  </body>
-</html>
+{% endblock %}
