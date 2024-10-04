@@ -40,7 +40,7 @@ def calculate_strategy(request):
         aapl_shares = 0
         gld_shares = 0
         hold_days = 0  # 增加持倉天數追蹤
-        unrealized_profit = 0  # 用於追蹤未實現損益的變化
+        unrealized_profit = capital  # 用於追蹤未實現損益的變化
         profit_and_loss = []  # 儲存每個時間點的未實現損益
 
         for i in range(len(spread)):
@@ -59,7 +59,8 @@ def calculate_strategy(request):
                         'action_gld': 'BUY',
                         'price_gld': data2['Close'].iloc[i],
                         'aapl_shares': aapl_shares,
-                        'gld_shares': gld_shares
+                        'gld_shares': gld_shares,
+                        'profit_loss': unrealized_profit
                     })
                     open_position = True
                     hold_days = 1  # 開倉後開始計算持倉天數
@@ -75,7 +76,8 @@ def calculate_strategy(request):
                         'action_gld': 'SELL',
                         'price_gld': data2['Close'].iloc[i],
                         'aapl_shares': aapl_shares,
-                        'gld_shares': gld_shares
+                        'gld_shares': gld_shares,
+                        'profit_loss': unrealized_profit
                     })
                     open_position = True
                     hold_days = 1
@@ -83,7 +85,7 @@ def calculate_strategy(request):
                 # 增加最低持倉天數，避免每天都進出場
                 hold_days += 1
                 # 計算持倉期間的未實現損益
-                unrealized_profit = (aapl_shares * data1['Close'].iloc[i]) - (gld_shares * data2['Close'].iloc[i])
+                unrealized_profit = unrealized_profit + (aapl_shares * data1['Close'].iloc[i]) - (gld_shares * data2['Close'].iloc[i])
                 profit_and_loss.append(unrealized_profit)
 
                 if hold_days < 50:  # 假設最少持倉 10 天
@@ -99,7 +101,8 @@ def calculate_strategy(request):
                         'action_gld': 'SELL',
                         'price_gld': data2['Close'].iloc[i],
                         'aapl_shares': aapl_shares,
-                        'gld_shares': gld_shares
+                        'gld_shares': gld_shares,
+                        'profit_loss': unrealized_profit
                     })
                     open_position = False
                     hold_days = 0  # 平倉後持倉天數重置
@@ -112,7 +115,8 @@ def calculate_strategy(request):
                         'action_gld': 'BUY',
                         'price_gld': data2['Close'].iloc[i],
                         'aapl_shares': aapl_shares,
-                        'gld_shares': gld_shares
+                        'gld_shares': gld_shares,
+                        'profit_loss': unrealized_profit
                     })
                     open_position = False
                     hold_days = 0

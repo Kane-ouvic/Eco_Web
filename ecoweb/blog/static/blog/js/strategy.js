@@ -25,8 +25,8 @@ $('#strategy-form').on('submit', function (event) {
             let buyGLDSignals = response.signals.filter(signal => signal.action_gld === 'BUY').map(signal => [new Date(signal.date).getTime(), signal.price_gld]);
             let sellGLDSignals = response.signals.filter(signal => signal.action_gld === 'SELL').map(signal => [new Date(signal.date).getTime(), signal.price_gld]);
 
-            let openSignals = response.signals.filter(signal => signal.type === 'OPEN').map(signal => [new Date(signal.date).getTime(), signal.price_aapl]);
-            let closeSignals = response.signals.filter(signal => signal.type === 'CLOSE').map(signal => [new Date(signal.date).getTime(), signal.price_aapl]);
+            let openSignals = response.signals.filter(signal => signal.type === 'OPEN').map(signal => [new Date(signal.date).getTime(), signal.profit_loss]);
+            let closeSignals = response.signals.filter(signal => signal.type === 'CLOSE').map(signal => [new Date(signal.date).getTime(), signal.profit_loss]);
             // Plot Price & Spread chart with signals
             Highcharts.stockChart('price-chart', {
                 title: { text: 'Price & Spread' },
