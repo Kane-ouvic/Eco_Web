@@ -26,8 +26,8 @@ def calculate_strategy(request):
 
         # 計算差值及布林帶
         spread = (data1['Close'].apply(np.log) - data2['Close'].apply(np.log))
-        rolling_mean = spread.rolling(window=window_size).mean().fillna(0)
-        rolling_std = spread.rolling(window=window_size).std().fillna(0)
+        rolling_mean = spread.rolling(window=window_size).mean().fillna(method='bfill')
+        rolling_std = spread.rolling(window=window_size).std().fillna(method='bfill')
         upper_band = rolling_mean + (n_std * rolling_std)
         lower_band = rolling_mean - (n_std * rolling_std)
 

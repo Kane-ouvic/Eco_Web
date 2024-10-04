@@ -1,4 +1,4 @@
-$('#strategy-form').on('submit', function(event) {
+$('#strategy-form').on('submit', function (event) {
     event.preventDefault(); // Prevent default form submission
 
     $.ajax({
@@ -6,7 +6,7 @@ $('#strategy-form').on('submit', function(event) {
         type: 'POST',
         data: $(this).serialize(),
         headers: { 'X-CSRFToken': csrfToken },
-        success: function(response) {
+        success: function (response) {
             console.log(response); // Check if the returned data is correct
 
             // Prepare data for Highcharts
@@ -25,6 +25,8 @@ $('#strategy-form').on('submit', function(event) {
             let buyGLDSignals = response.signals.filter(signal => signal.action_gld === 'BUY').map(signal => [new Date(signal.date).getTime(), signal.price_gld]);
             let sellGLDSignals = response.signals.filter(signal => signal.action_gld === 'SELL').map(signal => [new Date(signal.date).getTime(), signal.price_gld]);
 
+            let openSignals = response.signals.filter(signal => signal.type === 'OPEN').map(signal => [new Date(signal.date).getTime(), signal.price_aapl]);
+            let closeSignals = response.signals.filter(signal => signal.type === 'CLOSE').map(signal => [new Date(signal.date).getTime(), signal.price_aapl]);
             // Plot Price & Spread chart with signals
             Highcharts.stockChart('price-chart', {
                 title: { text: 'Price & Spread' },
@@ -58,7 +60,7 @@ $('#strategy-form').on('submit', function(event) {
                     type: 'scatter',
                     data: buyGLDSignals,
                     marker: {
-                        symbol: 'circle',
+                        symbol: 'triangle',
                         fillColor: 'green'
                     }
                 }, {
@@ -66,7 +68,7 @@ $('#strategy-form').on('submit', function(event) {
                     type: 'scatter',
                     data: sellGLDSignals,
                     marker: {
-                        symbol: 'circle',
+                        symbol: 'triangle-down',
                         fillColor: 'red'
                     }
                 }]
@@ -97,29 +99,30 @@ $('#strategy-form').on('submit', function(event) {
             Highcharts.stockChart('profit-chart', {
                 title: { text: 'Unrealized Profit & Loss' },
                 xAxis: {
-                  type: 'datetime'
+                    type: 'datetime'
                 },
                 series: [{
-                  name: 'Profit & Loss',
-                  data: profitAndLossData
+                    name: 'Profit & Loss',
+                    data: profitAndLossData
                 }, {
-                  name: 'Entry Points',
-                  type: 'scatter',
-                  data: buyAAPLSignals,
-                  marker: {
-                    symbol: 'circle',
-                    fillColor: 'green'
-                  }
+                    name: 'Entry Points',
+                    type: 'scatter',
+                    data: openSignals,
+                    marker: {
+                        symbol: 'triangle',
+                        fillColor: 'green'
+                    }
                 }, {
-                  name: 'Exit Points',
-                  type: 'scatter',
-                  data: sellAAPLSignals,
-                  marker: {
-                    symbol: 'circle',
-                    fillColor: 'red'
-                  }
+                    name: 'Exit Points',
+                    type: 'scatter',
+                    data: closeSignals,
+                    marker: {
+                        symbol: 'triangle-down',
+                        fillColor: 'red'
+                    }
                 }]
-              });
+            });
+
 
             // Populate table with signals
             let signalTableBody = $('#signal-table tbody');
@@ -150,7 +153,7 @@ $('#strategy-form').on('submit', function(event) {
                 });
             }
         },
-        error: function(error) {
+        error: function (error) {
             console.error(error);
         }
     });
