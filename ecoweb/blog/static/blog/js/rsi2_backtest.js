@@ -101,6 +101,7 @@ function updatePriceRSIChart(priceData, rsi1, rsi2, dates) {
 }
 
 function updatePerformanceMetrics(performance) {
+
     $('#total-return').text(performance.total_return + '%');
     $('#avg-return').text(performance.avg_return + '%');
     $('#win-rate').text(performance.win_rate + '%');
@@ -108,5 +109,9 @@ function updatePerformanceMetrics(performance) {
     $('#avg-loss').text(performance.avg_loss + '%');
     $('#profit-loss-ratio').text(performance.profit_loss_ratio);
     $('#expectancy').text(performance.expectancy + '%');
-    $('#max-drawdown').text(performance.max_drawdown + '%');
+    // $('#max-drawdown').text(performance.max_drawdown + '%');
+    $('#profitable-hold-days').text(performance.profitable_hold_days);
+    $('#loss-hold-days').text(performance.loss_hold_days);
+    $('#max-consecutive-loss').text(performance.max_consecutive_loss + '%');
+    $('#max-consecutive-profit').text(performance.max_consecutive_profit + '%');
 }

@@ -183,6 +183,17 @@ def rsi_backtest(request):
             equity_curve = [1.0]
             max_equity = 1.0
             drawdowns = [0.0]
+            hold_days = 0
+            profitable_hold_days = 0
+            loss_hold_days = 0
+            profitable_trades = 0
+            loss_trades = 0
+            current_consecutive_loss = 0
+            max_consecutive_loss = 0
+            current_consecutive_profit = 0
+            max_consecutive_profit = 0
+            current_drawdown = 0
+            max_drawdown = 0
 
             # 執行回測
             for i in range(1, len(data)):
@@ -193,11 +204,15 @@ def rsi_backtest(request):
                 n_time = data.index[i]
                 n_open = data.loc[n_time, 'Open']
 
+                if position == 1:
+                    hold_days += 1
+
                 if position == 0 and c_rsi1 > c_rsi2:
                     # 買入
                     position = 1
                     entry_price = n_open
                     entry_time = n_time
+                    hold_days = 0
                 elif position == 1 and c_rsi1 < c_rsi2 * exit_threshold:
                     # 賣出
                     exit_price = n_open
@@ -208,12 +223,36 @@ def rsi_backtest(request):
                         'entry_price': float(entry_price),
                         'exit_time': exit_time.strftime('%Y-%m-%d'),
                         'exit_price': float(exit_price),
-                        'returns': float(returns)
+                        'returns': float(returns),
+                        'hold_days': hold_days
                     })
                     equity_curve.append(equity_curve[-1] * (1 + returns))
-                    max_equity = max(max_equity, equity_curve[-1])
-                    drawdowns.append((max_equity - equity_curve[-1]) / max_equity)
+                    
+                    # 更新最大資金回落和最大連續獲利
+                    if equity_curve[-1] > max_equity:
+                        max_equity = equity_curve[-1]
+                        current_drawdown = 0
+                        current_consecutive_profit += returns
+                        max_consecutive_profit = max(max_consecutive_profit, current_consecutive_profit)
+                    else:
+                        current_drawdown = (max_equity - equity_curve[-1]) / max_equity
+                        max_drawdown = max(max_drawdown, current_drawdown)
+                        current_consecutive_profit = 0
+                    
+                    drawdowns.append(current_drawdown)
+                    
+                    if returns > 0:
+                        profitable_hold_days += hold_days
+                        profitable_trades += 1
+                        current_consecutive_loss = 0
+                    else:
+                        loss_hold_days += hold_days
+                        loss_trades += 1
+                        current_consecutive_loss -= returns  # 累加負收益
+                        max_consecutive_loss = max(max_consecutive_loss, current_consecutive_loss)
+                    
                     position = 0
+                    hold_days = 0
 
             # 處理未平倉部位
             if position == 1:
@@ -226,28 +265,56 @@ def rsi_backtest(request):
                     'entry_price': float(entry_price),
                     'exit_time': exit_time.strftime('%Y-%m-%d'),
                     'exit_price': float(exit_price),
-                    'returns': float(returns)
+                    'returns': float(returns),
+                    'hold_days': hold_days
                 })
                 equity_curve.append(equity_curve[-1] * (1 + returns))
-                max_equity = max(max_equity, equity_curve[-1])
-                drawdowns.append((max_equity - equity_curve[-1]) / max_equity)
+                
+                if equity_curve[-1] > max_equity:
+                    max_equity = equity_curve[-1]
+                    current_drawdown = 0
+                    current_consecutive_profit += returns
+                    max_consecutive_profit = max(max_consecutive_profit, current_consecutive_profit)
+                else:
+                    current_drawdown = (max_equity - equity_curve[-1]) / max_equity
+                    max_drawdown = max(max_drawdown, current_drawdown)
+                    current_consecutive_profit = 0
+                
+                drawdowns.append(current_drawdown)
+                
+                if returns > 0:
+                    profitable_hold_days += hold_days
+                    profitable_trades += 1
+                    current_consecutive_loss = 0
+                else:
+                    loss_hold_days += hold_days
+                    loss_trades += 1
+                    current_consecutive_loss -= returns
+                    max_consecutive_loss = max(max_consecutive_loss, current_consecutive_loss)
+                
                 position = 0
 
             # 計算績效指標
             total_return = (equity_curve[-1] - 1) * 100
             avg_return = np.mean([t['returns'] for t in trades]) * 100
-            win_rate = sum(1 for t in trades if t['returns'] > 0) / len(trades) * 100 if trades else 0
+            win_rate = (profitable_trades / len(trades)) * 100 if trades else 0
             avg_profit = np.mean([t['returns'] for t in trades if t['returns'] > 0]) * 100 if any(t['returns'] > 0 for t in trades) else 0
             avg_loss = np.mean([t['returns'] for t in trades if t['returns'] < 0]) * 100 if any(t['returns'] < 0 for t in trades) else 0
             profit_loss_ratio = abs(avg_profit / avg_loss) if avg_loss != 0 else float('inf')
             expectancy = (win_rate / 100 * avg_profit) + ((1 - win_rate / 100) * avg_loss)
-            max_drawdown = max(drawdowns) * 100 if drawdowns else 0
+            max_drawdown = max_drawdown * 100  # 轉換為百分比
+            max_consecutive_loss = max_consecutive_loss * 100  # 轉換為百分比
+            max_consecutive_profit = max_consecutive_profit * 100  # 轉換為百分比
 
             # 準備回傳的數據
             result = {
                 'trades': trades,
                 'equity_curve': equity_curve,
                 'drawdowns': drawdowns,
+                'dates': [d.strftime('%Y-%m-%d') for d in data.index],
+                'price_data': data['Close'].tolist(),
+                'rsi1': data['rsi1'].tolist(),
+                'rsi2': data['rsi2'].tolist(),
                 'performance': {
                     'total_return': round(total_return, 2),
                     'avg_return': round(avg_return, 2),
@@ -256,13 +323,18 @@ def rsi_backtest(request):
                     'avg_loss': round(avg_loss, 2),
                     'profit_loss_ratio': round(profit_loss_ratio, 2),
                     'expectancy': round(expectancy, 2),
-                    'max_drawdown': round(max_drawdown, 2)
-                },
-                'price_data': data['Close'].tolist()[::10],  # 每10個數據點取一個
-                'dates': [d.strftime('%Y-%m-%d') for d in data.index][::10],  # 每10個數據點取一個
-                'rsi1': data['rsi1'].tolist()[::10],  # 每10個數據點取一個
-                'rsi2': data['rsi2'].tolist()[::10]  # 每10個數據點取一個
+                    # 'max_drawdown': round(max_drawdown, 2),
+                    'profitable_hold_days': profitable_hold_days,
+                    'loss_hold_days': loss_hold_days,
+                    'max_consecutive_loss': round(max_consecutive_loss, 2),
+                    'max_consecutive_profit': round(max_consecutive_profit, 2)
+                }
             }
+            
+            print(result['performance']['profitable_hold_days'])
+            print(result['performance']['loss_hold_days'])
+            print(result['performance']['max_consecutive_loss'])
+            print(result['performance']['max_consecutive_profit'])
 
             # 處理 NaN 和 Infinity
             result['equity_curve'] = np.nan_to_num(result['equity_curve']).tolist()
