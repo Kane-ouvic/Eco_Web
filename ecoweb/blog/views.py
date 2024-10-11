@@ -1,5 +1,10 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from .forms import LoginForm, RegisterForm
+from django.contrib.auth.decorators import login_required
+
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -41,17 +46,19 @@ def calculate_strategy(request):
         aapl_shares = 0
         gld_shares = 0
         hold_days = 0  # 增加持倉天數追蹤
-        unrealized_profit = capital  # 用於追蹤未實現損益的變化
-        profit_and_loss = []  # 儲存每個時間點的未實現損益
+        position_type = None
+        entry_capital = 0
+        unrealized_profit = 0
+        profit_and_loss = []
 
         for i in range(len(spread)):
             if not open_position:
-                # 開倉條件：spread 超過上線或低於下線
-                profit_and_loss.append(unrealized_profit)  # 進場前保持未實現損益不變
-                if spread.iloc[i] > upper_band.iloc[i] and hold_days == 0:  # 確保持倉天數為0時才能開倉
+                profit_and_loss.append(unrealized_profit)
+                if spread.iloc[i] > upper_band.iloc[i] and hold_days == 0:
                     # 賣出 AAPL，買入 GLD
-                    aapl_shares = capital / data1['Close'].iloc[i]
-                    gld_shares = capital / data2['Close'].iloc[i]
+                    aapl_shares = capital / (2 * data1['Close'].iloc[i])
+                    gld_shares = capital / (2 * data2['Close'].iloc[i])
+                    position_type = 'short_aapl_long_gld'
                     signals.append({
                         'date': data1.index[i].strftime('%Y-%m-%d'),
                         'type': 'OPEN',
@@ -64,11 +71,12 @@ def calculate_strategy(request):
                         'profit_loss': unrealized_profit
                     })
                     open_position = True
-                    hold_days = 1  # 開倉後開始計算持倉天數
+                    hold_days = 1
                 elif spread.iloc[i] < lower_band.iloc[i] and hold_days == 0:
                     # 買入 AAPL，賣出 GLD
-                    aapl_shares = capital / data1['Close'].iloc[i]
-                    gld_shares = capital / data2['Close'].iloc[i]
+                    aapl_shares = capital / (2 * data1['Close'].iloc[i])
+                    gld_shares = capital / (2 * data2['Close'].iloc[i])
+                    position_type = 'long_aapl_short_gld'
                     signals.append({
                         'date': data1.index[i].strftime('%Y-%m-%d'),
                         'type': 'OPEN',
@@ -83,10 +91,14 @@ def calculate_strategy(request):
                     open_position = True
                     hold_days = 1
             else:
-                # 增加最低持倉天數，避免每天都進出場
                 hold_days += 1
                 # 計算持倉期間的未實現損益
-                unrealized_profit = unrealized_profit + (aapl_shares * data1['Close'].iloc[i]) - (gld_shares * data2['Close'].iloc[i])
+                if position_type == 'long_aapl_short_gld':
+                    current_value = (aapl_shares * data1['Close'].iloc[i]) - (gld_shares * data2['Close'].iloc[i])
+                else:  # 'short_aapl_long_gld'
+                    current_value = (gld_shares * data2['Close'].iloc[i]) - (aapl_shares * data1['Close'].iloc[i])
+                # current_value = (aapl_shares * data1['Close'].iloc[i]) - (gld_shares * data2['Close'].iloc[i])
+                unrealized_profit = current_value
                 profit_and_loss.append(unrealized_profit)
 
                 if hold_days < 50:  # 假設最少持倉 10 天
@@ -105,8 +117,12 @@ def calculate_strategy(request):
                         'gld_shares': gld_shares,
                         'profit_loss': unrealized_profit
                     })
+                    realized_profit = unrealized_profit
+                    capital += realized_profit
+                    # unrealized_profit = 0
                     open_position = False
-                    hold_days = 0  # 平倉後持倉天數重置
+                    hold_days = 0
+                    position_type = None
                 elif spread.iloc[i] > rolling_mean.iloc[i]:
                     signals.append({
                         'date': data1.index[i].strftime('%Y-%m-%d'),
@@ -119,8 +135,12 @@ def calculate_strategy(request):
                         'gld_shares': gld_shares,
                         'profit_loss': unrealized_profit
                     })
+                    realized_profit = unrealized_profit
+                    capital += realized_profit
+                    # unrealized_profit = 0
                     open_position = False
                     hold_days = 0
+                    position_type = None
 
         # 準備資料以傳送到前端進行繪圖
         context = {
@@ -145,7 +165,7 @@ def calculate_strategy(request):
 
     return render(request, 'blog/post_list.html')
 
-
+@login_required
 def rsi_backtest(request):
     logging.info("rsi_backtest 函數被調用")
     if request.method == 'POST':
@@ -385,3 +405,32 @@ def test(request):
     print("hi")
     # return render(request, 'blog')
     return render(request, 'blog/test1.html')
+
+def login_view(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('test')  # 替換 'home' 為您的主頁 URL 名稱
+    else:
+        form = LoginForm()
+    return render(request, 'blog/login.html', {'form': form})
+
+def register(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('test')  # 替換 'home' 為您的主頁 URL 名稱
+    else:
+        form = RegisterForm()
+    return render(request, 'blog/register.html', {"form": form})
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')  # 或其他您想重定向的頁面

@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     
     # 添加你的應用程式
     'blog',
+    
+    # 添加 DRF
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
