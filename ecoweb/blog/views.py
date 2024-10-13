@@ -11,7 +11,7 @@ import numpy as np
 import pandas_ta as ta
 
 import json
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import logging
 import re
 from django.core.serializers.json import DjangoJSONEncoder
@@ -32,10 +32,11 @@ def calculate_strategy(request):
 
         # 計算差值及布林帶
         spread = (data1['Close'].apply(np.log) - data2['Close'].apply(np.log))
-        rolling_mean = spread.rolling(window=window_size).mean().fillna(method='bfill')
-        rolling_std = spread.rolling(window=window_size).std().fillna(method='bfill')
+        rolling_mean = spread.rolling(window=window_size).mean()
+        rolling_std = spread.rolling(window=window_size).std()
         upper_band = rolling_mean + (n_std * rolling_std)
         lower_band = rolling_mean - (n_std * rolling_std)
+        
 
         # 將日期轉換成 UNIX 時間戳記（毫秒）
         timestamps = list(map(int, data1.index.view(np.int64) // 10**6))
@@ -54,7 +55,7 @@ def calculate_strategy(request):
         for i in range(len(spread)):
             if not open_position:
                 profit_and_loss.append(unrealized_profit)
-                if spread.iloc[i] > upper_band.iloc[i] and hold_days == 0:
+                if spread.iloc[i] > upper_band.iloc[i]  and hold_days == 0:
                     # 賣出 AAPL，買入 GLD
                     aapl_shares = capital / (2 * data1['Close'].iloc[i])
                     gld_shares = capital / (2 * data2['Close'].iloc[i])
@@ -72,7 +73,7 @@ def calculate_strategy(request):
                     })
                     open_position = True
                     hold_days = 1
-                elif spread.iloc[i] < lower_band.iloc[i] and hold_days == 0:
+                elif spread.iloc[i] < lower_band.iloc[i]  and hold_days == 0:
                     # 買入 AAPL，賣出 GLD
                     aapl_shares = capital / (2 * data1['Close'].iloc[i])
                     gld_shares = capital / (2 * data2['Close'].iloc[i])
@@ -151,16 +152,16 @@ def calculate_strategy(request):
             'n_std': n_std,
             'window_size': window_size,
             'dates': timestamps,
-            'stock1_prices': list(data1['Close'].fillna(0)),
-            'stock2_prices': list(data2['Close'].fillna(0)),
-            'spread': list(spread.fillna(0)),
-            'rolling_mean': list(rolling_mean),
-            'upper_band': list(upper_band),
-            'lower_band': list(lower_band),
+            'stock1_prices': list(data1['Close'].fillna(-2147483648)),  # 移除 fillna(0)
+            'stock2_prices': list(data2['Close'].fillna(-2147483648)),  # 移除 fillna(0)
+            'spread': list(spread.fillna(-2147483648)),  # 移除 fillna(0)
+            'rolling_mean': list(rolling_mean.fillna(-2147483648)),  # 移除 fillna(0)
+            'upper_band': list(upper_band.fillna(-2147483648)),  # 移除 fillna(0)
+            'lower_band': list(lower_band.fillna(-2147483648)),  # 移除 fillna(0)
             'signals': signals,
             'profit_and_loss': profit_and_loss  # 加入未實現損益
         }
-
+        # print(context)
         return JsonResponse(context)
 
     return render(request, 'blog/post_list.html')

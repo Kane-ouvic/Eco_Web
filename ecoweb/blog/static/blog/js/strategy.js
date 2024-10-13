@@ -9,14 +9,26 @@ $('#strategy-form').on('submit', function (event) {
         success: function (response) {
             console.log(response); // Check if the returned data is correct
 
-            // Prepare data for Highcharts
-            let stock1Data = response.dates.map((timestamp, index) => [timestamp, response.stock1_prices[index]]);
-            let stock2Data = response.dates.map((timestamp, index) => [timestamp, response.stock2_prices[index]]);
-            let spreadData = response.dates.map((timestamp, index) => [timestamp, response.spread[index]]);
-            let rollingMeanData = response.dates.map((timestamp, index) => [timestamp, response.rolling_mean[index]]);
-            let upperBandData = response.dates.map((timestamp, index) => [timestamp, response.upper_band[index]]);
-            let lowerBandData = response.dates.map((timestamp, index) => [timestamp, response.lower_band[index]]);
-            let profitAndLossData = response.dates.map((timestamp, index) => [timestamp, response.profit_and_loss[index]]);
+            // 準備數據，將 NaN 轉換為 null
+            function prepareData(dates, values) {
+                return dates.map((timestamp, index) => [timestamp, (values[index] === -2147483648) ? null : values[index]]);
+            }
+
+            let stock1Data = prepareData(response.dates, response.stock1_prices);
+            let stock2Data = prepareData(response.dates, response.stock2_prices);
+            let spreadData = prepareData(response.dates, response.spread);
+            let rollingMeanData = prepareData(response.dates, response.rolling_mean);
+            let upperBandData = prepareData(response.dates, response.upper_band);
+            let lowerBandData = prepareData(response.dates, response.lower_band);
+            let profitAndLossData = prepareData(response.dates, response.profit_and_loss);
+
+            console.log(stock1Data);
+            console.log(stock2Data);
+            console.log(spreadData);
+            console.log(rollingMeanData);
+            console.log(upperBandData);
+            console.log(lowerBandData);
+            console.log(profitAndLossData);
 
             // Prepare signals for marking
             let buyAAPLSignals = response.signals.filter(signal => signal.action_aapl === 'BUY').map(signal => [new Date(signal.date).getTime(), signal.price_aapl]);
@@ -31,14 +43,18 @@ $('#strategy-form').on('submit', function (event) {
             Highcharts.stockChart('price-chart', {
                 title: { text: 'Price & Spread' },
                 xAxis: {
-                    type: 'datetime'
+                    type: 'datetime',
+                    ordinal: false
                 },
+                yAxis: { title: { text: 'Price' } },
                 series: [{
                     name: response.stock1,
-                    data: stock1Data
+                    data: stock1Data,
+                    connectNulls: false
                 }, {
                     name: response.stock2,
-                    data: stock2Data
+                    data: stock2Data,
+                    connectNulls: false
                 }, {
                     name: 'AAPL Buy Signals',
                     type: 'scatter',
@@ -78,21 +94,26 @@ $('#strategy-form').on('submit', function (event) {
             Highcharts.stockChart('bollinger-chart', {
                 title: { text: 'Bollinger Bands & Signals' },
                 xAxis: {
-                    type: 'datetime'
+                    type: 'datetime',
+                    ordinal: false
                 },
                 series: [{
                     name: 'Spread',
-                    data: spreadData
+                    data: spreadData,
+                    connectNulls: false
                 }, {
                     name: 'Rolling Mean',
-                    data: rollingMeanData
+                    data: rollingMeanData,
+                    connectNulls: false
                 }, {
                     name: 'Upper Band',
-                    data: upperBandData
+                    data: upperBandData,
+                    connectNulls: false
                 }, {
                     name: 'Lower Band',
-                    data: lowerBandData
-                }]
+                    data: lowerBandData,
+                    connectNulls: false
+                },]
             });
 
             // Plot Profit & Loss chart
@@ -154,6 +175,7 @@ $('#strategy-form').on('submit', function (event) {
             }
         },
         error: function (error) {
+            console.log("error");
             console.error(error);
         }
     });
