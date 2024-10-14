@@ -21,13 +21,13 @@
         <div class="d-flex w-100">
           <div class="d-flex me-auto">
             <span class="navbar-brand mb-0 h1">Stock Correlation Strategy</span>
-            <a href="/test" class="btn btn-outline-light me-2">Home</a>
+            <a href="/blog/test" class="btn btn-outline-light me-2">Home</a>
             <a href="#" class="btn btn-outline-light me-2">About</a>
-            <a href="/calculate-strategy" class="btn btn-outline-light me-2">Calculate Strategy</a>
-            <a href="/rsi-backtest" class="btn btn-outline-light me-2">RSI Backtest</a>
+            <a href="/blog/calculate_strategy" class="btn btn-outline-light me-2">Calculate Strategy</a>
+            <a href="/blog/rsi_backtest/" class="btn btn-outline-light me-2">RSI Backtest</a>
           </div>
           <div class="d-flex">
-            <a href="#" class="btn btn-outline-light me-2">Contact</a>
+            <!-- <a href="#" class="btn btn-outline-light me-2">Contact</a> -->
             {% if user.is_authenticated %}
               <span class="navbar-text me-3">Welcome, {{ user.username }}!</span>
               <a href="#" class="btn btn-outline-light">Profile</a>

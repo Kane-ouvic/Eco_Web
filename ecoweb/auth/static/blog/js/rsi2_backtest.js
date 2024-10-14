@@ -3,7 +3,7 @@ $(document).ready(function () {
         e.preventDefault();
         console.log("表單提交");
         $.ajax({
-            url: '/api/rsi_backtest/',
+            url: '/rsi-backtest/',
             type: 'POST',
             data: $(this).serialize(),
             dataType: 'json',

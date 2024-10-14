@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     
     # 添加你的應用程式
     'blog',
+    'options_func',
     
     # 添加 DRF
     'rest_framework',
@@ -54,6 +55,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    'blog.apps.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'ecoweb.urls'
@@ -82,8 +85,12 @@ WSGI_APPLICATION = 'ecoweb.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'Ecoweb',
+        'USER': 'n26130655',
+        'PASSWORD': 'ouvic215',
+        'HOST': 'localhost',  # 或者您的數據庫服務器的 IP 地址
+        'PORT': '5432',  # PostgreSQL 默認端口
     }
 }
 
@@ -130,3 +137,5 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = '/auth/login_reminder/'

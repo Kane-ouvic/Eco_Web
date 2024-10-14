@@ -1,0 +1,8 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<h2>請先登入</h2>
+<p>您嘗試訪問的頁面需要登入。請先登入或註冊一個帳號。</p>
+<a href="{% url 'login' %}?next={{ next_url }}">登入</a>
+<a href="{% url 'register' %}?next={{ next_url }}">註冊</a>
+{% endblock %}

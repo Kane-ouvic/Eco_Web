@@ -2,7 +2,7 @@ $('#strategy-form').on('submit', function (event) {
     event.preventDefault(); // Prevent default form submission
 
     $.ajax({
-        url: '/api/calculate_strategy/',  // Submit to your Django backend URL
+        url: '/calculate-strategy/',  // Submit to your Django backend URL
         type: 'POST',
         data: $(this).serialize(),
         headers: { 'X-CSRFToken': csrfToken },
