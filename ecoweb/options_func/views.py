@@ -16,6 +16,7 @@ import re
 # from django.core.serializers.json import DjangoJSONEncoder
 # Create your views here.
 # from django.http import JsonResponse
+from django.http import QueryDict
 
 @api_view(['POST'])
 def simple_json_api(request):
@@ -23,15 +24,38 @@ def simple_json_api(request):
     person = {'name': 'John', 'age': 30, 'city': 'New York'}
     return Response(person)
 
-
 @api_view(['POST'])
 def calculate_strategy(request):
-        stock1 = request.POST.get('stock1')
-        stock2 = request.POST.get('stock2')
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        n_std = int(request.POST.get('n_std'))
-        window_size = int(request.POST.get('window_size'))
+    try:
+        # 檢查內容類型並相應地解析數據
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+        else:
+            data = request.POST       
+        print(data)
+
+        logging.info(f"Received data: {data}")
+
+        # 從數據中獲取參數
+        stock1 = data.get('stock1')
+        stock2 = data.get('stock2')
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        n_std = data.get('n_std')
+        window_size = data.get('window_size')
+
+        # 檢查是否所有必要的參數都存在
+        if not all([stock1, stock2, start_date, end_date, n_std, window_size]):
+            missing_params = [param for param in ['stock1', 'stock2', 'start_date', 'end_date', 'n_std', 'window_size'] if not data.get(param)]
+            return Response({'error': f'Missing parameters: {", ".join(missing_params)}'}, status=400)
+
+        # 轉換參數為適當的類型
+        try:
+            n_std = int(n_std)
+            window_size = int(window_size)
+        except ValueError as e:
+            return Response({'error': f'Invalid value for n_std or window_size: {str(e)}'}, status=400)
+
         capital = 100000  # 假設本金為 10 萬
 
         # 從 Yahoo Finance 取得股票資料
@@ -171,6 +195,11 @@ def calculate_strategy(request):
         }
         # print(context)
         return Response(context)
+    except json.JSONDecodeError:
+        return Response({'error': 'Invalid JSON format'}, status=400)
+    except Exception as e:
+        logging.exception("An error occurred in calculate_strategy")
+        return Response({'error': str(e)}, status=500)
 
 @api_view(['POST'])
 def rsi2_backtest(request):
