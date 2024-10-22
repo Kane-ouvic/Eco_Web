@@ -13,6 +13,7 @@ from django.http import QueryDict
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from .models import UserTracker  # 添加這行在文件頂部
+from rest_framework import status
 
 
 @api_view(['POST'])
@@ -21,6 +22,7 @@ def simple_json_api(request):
     person = {'name': 'John', 'age': 30, 'city': 'New York'}
     return Response(person)
 
+@csrf_exempt
 @api_view(['POST'])
 def calculate_strategy(request):
     try:
@@ -31,7 +33,7 @@ def calculate_strategy(request):
             data = request.POST       
         print(data)
 
-        logging.info(f"Received data: {data}")
+        print(f"Received data: {data}")
 
         # 從數據中獲取參數
         stock1 = data.get('stock1')
@@ -46,6 +48,7 @@ def calculate_strategy(request):
             missing_params = [param for param in ['stock1', 'stock2', 'start_date', 'end_date', 'n_std', 'window_size'] if not data.get(param)]
             return Response({'error': f'Missing parameters: {", ".join(missing_params)}'}, status=400)
 
+        # print("--------------------------")
         # 轉換參數為適當的類型
         try:
             n_std = int(n_std)
@@ -53,6 +56,7 @@ def calculate_strategy(request):
         except ValueError as e:
             return Response({'error': f'Invalid value for n_std or window_size: {str(e)}'}, status=400)
         context = distance_method(stock1, stock2, start_date, end_date, n_std, window_size)
+        # print("--------------------------")
         
         return Response(context)
     except json.JSONDecodeError:
@@ -94,34 +98,53 @@ class TestView(APIView):
 
 class AddTrackView(APIView):
     def post(self, request):
-        if request.method == 'POST':
-            try:
-                # 從請求中獲取數據
-                print(request.POST)
-                method = request.POST.get('method', 'distance')  # 默認為 'distance'
-                stock1 = request.POST.get('stock1')
-                stock2 = request.POST.get('stock2')
-                start_date = parse_date(request.POST.get('start_date'))
-                end_date = parse_date(request.POST.get('end_date'))
-                window_size = int(request.POST.get('window_size'))
-                n_std = float(request.POST.get('n_std'))
-                track_date = timezone.now()
-                # print(track_date)
-                # 創建新的 UserTracker 記錄
-                tracker = UserTracker.objects.create(
-                    user=request.user,
-                    method=method,
-                    stock1=stock1,
-                    stock2=stock2,
-                    start_date=start_date,
-                    end_date=end_date,
-                    window_size=window_size,
-                    n_std=n_std,
-                    track_date=track_date
-                )
+        try:
+            # 從請求中獲取數據
+            print(f"Received data: {request.data}")
+            method = request.data.get('method', 'distance')  # 默認為 'distance'
+            stock1 = request.data.get('stock1')
+            stock2 = request.data.get('stock2')
+            start_date = parse_date(request.data.get('start_date'))
+            end_date = parse_date(request.data.get('end_date'))
+            window_size = int(request.data.get('window_size'))
+            n_std = float(request.data.get('n_std'))
+            track_date = timezone.now()
 
-                return Response({'success': True, 'message': '成功添加追蹤'})
-            except Exception as e:
-                return Response({'success': False, 'error': str(e)})
-        else:
-            return Response({'success': False, 'error': '無效的請求方法'})
+            # 檢查必要的字段是否存在
+            if not all([stock1, stock2, start_date, end_date, window_size, n_std]):
+                return Response({'success': False, 'error': '缺少必要的字段'})
+
+            # 創建新的 UserTracker 記錄
+            tracker = UserTracker.objects.create(
+                user=request.user,
+                method=method,
+                stock1=stock1,
+                stock2=stock2,
+                start_date=start_date,
+                end_date=end_date,
+                window_size=window_size,
+                n_std=n_std,
+                track_date=track_date
+            )
+            print(f"Successfully created tracker: {tracker.id}")
+            return Response({'success': True, 'message': '成功添加追蹤'})
+        except Exception as e:
+            print(f"Error adding track: {str(e)}")
+            return Response({'success': False, 'error': str(e)})
+    
+    def delete(self, request):
+        try:
+            track_id = request.data.get('track_id')
+            if not track_id:
+                return Response({'success': False, 'error': '未提供追蹤 ID'}, status=status.HTTP_400_BAD_REQUEST)
+
+            track = UserTracker.objects.filter(id=track_id, user=request.user).first()
+            if not track:
+                return Response({'success': False, 'error': '找不到指定的追蹤記錄或您沒有權限刪除此記錄'}, status=status.HTTP_404_NOT_FOUND)
+
+            track.delete()
+            print(f"User {request.user.username} successfully untracked record {track_id}")
+            return Response({'success': True, 'message': '成功取消追蹤'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"Error untracking: {str(e)}")
+            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
