@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from .forms import LoginForm, RegisterForm
 from django.contrib.auth.decorators import login_required
+from django.utils.formats import date_format
 
 import yfinance as yf
 import pandas as pd
@@ -15,6 +16,7 @@ from datetime import datetime, date, timedelta
 import logging
 import re
 from django.core.serializers.json import DjangoJSONEncoder
+from options_func.models import UserTracker
 
 @login_required
 def calculate_strategy(request):
@@ -58,3 +60,9 @@ def register(request):
 def logout_view(request):
     logout(request)
     return redirect('login')  # 或其他您想重定向的頁面
+
+@login_required
+def monitor(request):
+    user_tracks = UserTracker.objects.filter(user=request.user).order_by('-created_at')
+    print(user_tracks)
+    return render(request, 'blog/monitor.html', {'user_tracks': user_tracks})

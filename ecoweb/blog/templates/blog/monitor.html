@@ -1,0 +1,47 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>我的追蹤列表</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>方法</th>
+                <th>股票1</th>
+                <th>股票2</th>
+                <th>開始日期</th>
+                <th>結束日期</th>
+                <th>窗口大小</th>
+                <th>n倍標準差</th>
+                <th>追蹤日期</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for track in user_tracks %}
+            <tr>
+                <td>{{ track.method }}</td>
+                <td>{{ track.stock1 }}</td>
+                <td>{{ track.stock2 }}</td>
+                <td>{{ track.start_date|date:"Y-m-d" }}</td>
+                <td>{{ track.end_date|date:"Y-m-d" }}</td>
+                <td>{{ track.window_size }}</td>
+                <td>{{ track.n_std }}</td>
+                <td>{{ track.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm untrack-btn" data-track-id="{{ track.id }}">取消追蹤</button>
+                    <button class="btn btn-success btn-sm results-btn" data-track-id="{{ track.id }}">查看結果</button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="text-center">目前沒有追蹤記錄</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="{% static 'blog/js/monitor.js' %}"></script>
+{% endblock %}

@@ -180,3 +180,27 @@ $('#strategy-form').on('submit', function (event) {
         }
     });
 });
+
+// 新增 Add Track 按鈕的點擊事件處理
+$('#add-track-btn').on('click', function () {
+    let formData = $('#strategy-form').serialize();
+    formData += '&method=' + "Distance";  // 假設您有一個 id 為 'method' 的選擇框
+    console.log(formData);
+    $.ajax({
+        url: '/api/add_track/',
+        type: 'POST',
+        data: formData,
+        headers: { 'X-CSRFToken': csrfToken },
+        success: function (response) {
+            if (response.success) {
+                alert('成功添加追蹤：' + response.message);
+            } else {
+                alert('添加追蹤失敗：' + response.error);
+            }
+        },
+        error: function (error) {
+            console.error('添加追蹤時發生錯誤：', error);
+            alert('添加追蹤時發生錯誤。');
+        }
+    });
+});
