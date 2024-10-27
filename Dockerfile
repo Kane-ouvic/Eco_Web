@@ -1,0 +1,23 @@
+# 使用官方 Python 映像作為基礎映像
+FROM python:3.9
+
+# 設定工作目錄
+WORKDIR /app
+
+# 複製 requirements.txt 並安裝 Python 依賴
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 複製 ecoweb 和 config 目錄
+COPY ecoweb/ ecoweb/
+COPY config/ config/
+COPY .env .env
+
+# 設定工作目錄到 ecoweb
+WORKDIR /app/ecoweb
+
+# 開放應用程式運行的端口
+EXPOSE 8000
+
+# 啟動 Django 應用程式
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
