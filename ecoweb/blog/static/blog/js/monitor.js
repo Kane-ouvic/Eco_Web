@@ -2,19 +2,19 @@ $(document).ready(function () {
     // 初始化 DataTable
     $('#trackTable').DataTable({
         "pageLength": 10,
-        "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "全部"]],
+        "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "All"]],
         "language": {
-            "lengthMenu": "顯示 _MENU_ 條目",
-            "zeroRecords": "沒有找到匹配的記錄",
-            "info": "顯示第 _START_ 至 _END_ 項結果，共 _TOTAL_ 項",
-            "infoEmpty": "顯示第 0 至 0 項結果，共 0 項",
-            "infoFiltered": "(由 _MAX_ 項結果過濾)",
-            "search": "搜索:",
+            "lengthMenu": "Show _MENU_ entries",
+            "zeroRecords": "No matching records found",
+            "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+            "infoEmpty": "Showing 0 to 0 of 0 entries",
+            "infoFiltered": "(filtered from _MAX_ total entries)",
+            "search": "Search:",
             "paginate": {
-                "first": "首頁",
-                "last": "末頁",
-                "next": "下一頁",
-                "previous": "上一頁"
+                "first": "First",
+                "last": "Last",
+                "next": "Next",
+                "previous": "Previous"
             }
         }
     });
@@ -23,7 +23,7 @@ $(document).ready(function () {
     function setupUntrackButtons() {
         $('.untrack-btn').click(function () {
             var trackId = $(this).data('track-id');
-            if (confirm('確定要取消追蹤嗎？')) {
+            if (confirm('Are you sure you want to untrack?')) {
                 untrackRecord(trackId);
             }
         });
@@ -44,11 +44,11 @@ $(document).ready(function () {
                     // 重新加載頁面或從表格中移除該行
                     location.reload();
                 } else {
-                    alert('取消追蹤失敗：' + response.error);
+                    alert('Unfollow failed: ' + response.error);
                 }
             },
             error: function (xhr) {
-                alert('發生錯誤，請稍後再試。錯誤：' + (xhr.responseJSON ? xhr.responseJSON.error : '未知錯誤'));
+                alert('發生錯誤，請稍後再試。錯誤：' + (xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error'));
             }
         });
     }
@@ -92,13 +92,13 @@ $(document).ready(function () {
                 if (response.dates && response.stock1_prices) {
                     showResultsModal(response, trackDetails);
                 } else {
-                    alert('計算策略失敗：' + (response.error || '返回的數據格式不正確'));
+                    alert('Calculation failed: ' + (response.error || 'Incorrect data format'));
                 }
             },
             error: function (xhr, status, error) {
-                console.error('AJAX 錯誤:', status, error);
-                console.error('響應文本:', xhr.responseText);
-                alert('發生錯誤，請稍後再試。錯誤：' + (xhr.responseJSON ? xhr.responseJSON.error : error));
+                console.error('AJAX error:', status, error);
+                console.error('Response text:', xhr.responseText);
+                alert('An error occurred, please try again later. Error: ' + (xhr.responseJSON ? xhr.responseJSON.error : error));
             }
         });
     }
@@ -116,7 +116,7 @@ $(document).ready(function () {
                 <div class="modal-dialog modal-xl" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">策略結果</h5>
+                            <h5 class="modal-title">Strategy Results</h5>
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>

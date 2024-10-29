@@ -3,19 +3,19 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>我的追蹤列表</h2>
+    <h2>My Tracking List</h2>
     <table id="trackTable" class="table table-striped">
         <thead>
             <tr>
-                <th>方法</th>
-                <th>股票1</th>
-                <th>股票2</th>
-                <th>開始日期</th>
-                <th>結束日期</th>
-                <th>窗口大小</th>
-                <th>n倍標準差</th>
-                <th>追蹤日期</th>
-                <th>操作</th>
+                <th>Method</th>
+                <th>Stock 1</th>
+                <th>Stock 2</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Window Size</th>
+                <th>n-sigma</th>
+                <th>Tracking Date</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -31,13 +31,13 @@
                 <td id="n_std-{{ track.id }}">{{ track.n_std }}</td>
                 <td id="created_at-{{ track.id }}">{{ track.created_at|date:"Y-m-d" }}</td>
                 <td>
-                    <button class="btn btn-danger btn-sm untrack-btn" data-track-id="{{ track.id }}">取消追蹤</button>
-                    <button class="btn btn-success btn-sm results-btn" data-track-id="{{ track.id }}">查看結果</button>
+                    <button class="btn btn-danger btn-sm untrack-btn" data-track-id="{{ track.id }}">Untrack</button>
+                    <button class="btn btn-success btn-sm results-btn" data-track-id="{{ track.id }}">Results</button>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="9" class="text-center">目前沒有追蹤記錄</td>
+                <td colspan="9" class="text-center">No tracking records yet</td>
             </tr>
             {% endfor %}
         </tbody>
