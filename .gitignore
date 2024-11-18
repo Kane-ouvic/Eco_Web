@@ -49,3 +49,10 @@ htmlcov/
 *.temp
 *.swp
 *.swo
+
+
+# 忽略快取檔案
+__pycache__/
+*.py[cod]
+*$py.class
+.cache/
