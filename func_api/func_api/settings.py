@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1%iiky%x8##l7n(i^3i6(9b1n6_7$yah!t$pms$3g2740b%ukx'
+SECRET_KEY = 'django-insecure-bv!ws!^x*5riqkz$vg#3d(m21mzm58wc#taf9t-x3!(i4jqevx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,16 +39,32 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'options_func',
+    'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://web.nightcover.com.tw:55555",  # ecoweb 的域名
+]
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
 ]
 
 ROOT_URLCONF = 'func_api.urls'
@@ -86,6 +102,23 @@ DATABASES = {
     }
 }
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+SESSION_COOKIE_DOMAIN = 'web.nightcover.com.tw'  # 設置父域，允許子域共享
+SESSION_COOKIE_NAME = 'shared_sessionid'      # 保證 Cookie 名稱一致
+CSRF_COOKIE_DOMAIN = 'web.nightcover.com.tw'
+CSRF_COOKIE_NAME = 'shared_csrftoken'
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://web.nightcover.com.tw:55555',
+    'http://web.nightcover.com.tw:55556',
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+CORS_ALLOW_CREDENTIALS = True  # 允許攜帶 Cookie
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

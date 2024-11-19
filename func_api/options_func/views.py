@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import yfinance as yf
@@ -22,7 +23,6 @@ def simple_json_api(request):
     person = {'name': 'John', 'age': 30, 'city': 'New York'}
     return Response(person)
 
-@csrf_exempt
 @api_view(['POST'])
 def calculate_strategy(request):
     try:
@@ -133,12 +133,18 @@ class AddTrackView(APIView):
             return Response({'success': False, 'error': str(e)})
     
     def delete(self, request):
+        print("Cookies:", request.COOKIES)  # 查看共享的 Cookie 是否正確
+        print("Session ID:", request.COOKIES.get('shared_sessionid'))  # 檢查 Session ID
+        print("User:", request.user)  # 檢查是否正確辨識用戶
+        # print(session_key)
         try:
             track_id = request.data.get('track_id')
+            
             if not track_id:
                 return Response({'success': False, 'error': '未提供追蹤 ID'}, status=status.HTTP_400_BAD_REQUEST)
 
             track = UserTracker.objects.filter(id=track_id, user=request.user).first()
+            # print(track)
             if not track:
                 return Response({'success': False, 'error': '找不到指定的追蹤記錄或您沒有權限刪除此記錄'}, status=status.HTTP_404_NOT_FOUND)
 

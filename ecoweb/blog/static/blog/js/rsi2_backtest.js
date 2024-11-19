@@ -1,9 +1,10 @@
 $(document).ready(function () {
     $('#backtest-form').on('submit', function (e) {
+        const API_BASE_URL = 'http://web.nightcover.com.tw:55556';
         e.preventDefault();
         console.log("表單提交");
         $.ajax({
-            url: '/api/rsi_backtest/',
+            url: `${API_BASE_URL}/api/rsi_backtest/`,
             type: 'POST',
             data: $(this).serialize(),
             dataType: 'json',

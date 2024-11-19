@@ -29,6 +29,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['web.nightcover.com.tw', '127.0.0.1', 'localhost']
 
+CORS_ALLOWED_ORIGINS = [
+    "http://web.nightcover.com.tw:55555", 
+    "http://web.nightcover.com.tw:55556",  # API 來源
+]
 
 
 # Application definition
@@ -48,10 +52,13 @@ INSTALLED_APPS = [
     
     # 添加 DRF
     'rest_framework',
+    
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # 確保它在這裡
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -60,6 +67,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
     'blog.apps.LoginRequiredMiddleware',
+]
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
 ]
 
 ROOT_URLCONF = 'ecoweb.urls'
@@ -97,6 +113,23 @@ DATABASES = {
     }
 }
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+SESSION_COOKIE_DOMAIN = 'web.nightcover.com.tw'  # 設置父域，允許子域共享
+SESSION_COOKIE_NAME = 'shared_sessionid'      # 保證 Cookie 名稱一致
+CSRF_COOKIE_DOMAIN = 'web.nightcover.com.tw'
+CSRF_COOKIE_NAME = 'shared_csrftoken'
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://web.nightcover.com.tw:55555',
+    'http://web.nightcover.com.tw:55556',
+]
+
+CORS_ALLOW_CREDENTIALS = True  # 允許攜帶 Cookie
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

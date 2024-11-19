@@ -14,6 +14,7 @@ from django.utils.dateparse import parse_date
 from django.utils import timezone
 from .models import UserTracker  # 添加這行在文件頂部
 from rest_framework import status
+from django.contrib.auth.models import AnonymousUser
 
 
 @api_view(['POST'])
@@ -22,7 +23,6 @@ def simple_json_api(request):
     person = {'name': 'John', 'age': 30, 'city': 'New York'}
     return Response(person)
 
-@csrf_exempt
 @api_view(['POST'])
 def calculate_strategy(request):
     try:
@@ -99,6 +99,9 @@ class TestView(APIView):
 class AddTrackView(APIView):
     def post(self, request):
         try:
+            if isinstance(request.user, AnonymousUser):
+                print("用戶未登錄")
+                return Response({'success': False, 'error': '用戶未登錄'}, status=status.HTTP_403_FORBIDDEN)
             # 從請求中獲取數據
             print(f"Received data: {request.data}")
             method = request.data.get('method', 'distance')  # 默認為 'distance'

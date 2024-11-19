@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    const API_BASE_URL = 'http://web.nightcover.com.tw:55556';
     // 初始化 DataTable
     $('#trackTable').DataTable({
         "pageLength": 10,
@@ -31,12 +32,15 @@ $(document).ready(function () {
 
     function untrackRecord(trackId) {
         $.ajax({
-            url: '/api/add_track/',  // 使用與添加追蹤相同的 URL
+            url: `${API_BASE_URL}/api/add_track/`,  // 使用與添加追蹤相同的 URL
             type: 'DELETE',
             data: JSON.stringify({ track_id: trackId }),
             contentType: 'application/json',
             headers: {
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCookie('shared_csrftoken') // 攜帶 CSRF Token
+            },
+            xhrFields: {
+                withCredentials: true // 攜帶共享的 Cookie
             },
             success: function (response) {
                 if (response.success) {
@@ -74,7 +78,7 @@ $(document).ready(function () {
         };
 
         $.ajax({
-            url: '/api/calculate_strategy/',
+            url: `${API_BASE_URL}/api/calculate_strategy/`,
             type: 'POST',
             data: {
                 stock1: trackDetails.stock1,

@@ -1,8 +1,8 @@
+const API_BASE_URL = 'http://web.nightcover.com.tw:55556';
 $('#strategy-form').on('submit', function (event) {
     event.preventDefault(); // Prevent default form submission
-
     $.ajax({
-        url: '/api/calculate_strategy/',  // Submit to your Django backend URL
+        url: `${API_BASE_URL}/api/calculate_strategy/`,  // Submit to your Django backend URL
         type: 'POST',
         data: $(this).serialize(),
         headers: { 'X-CSRFToken': csrfToken },
@@ -187,10 +187,15 @@ $('#add-track-btn').on('click', function () {
     formData += '&method=' + "Distance";  // 假設您有一個 id 為 'method' 的選擇框
     console.log(formData);
     $.ajax({
-        url: '/api/add_track/',
+        url: `${API_BASE_URL}/api/add_track/`,
         type: 'POST',
         data: formData,
-        headers: { 'X-CSRFToken': csrfToken },
+        headers: {
+            'X-CSRFToken': getCookie('shared_csrftoken') // 攜帶 CSRF Token
+        },
+        xhrFields: {
+            withCredentials: true // 攜帶共享的 Cookie
+        },
         success: function (response) {
             if (response.success) {
                 alert('成功添加追蹤：' + response.message);
@@ -203,4 +208,22 @@ $('#add-track-btn').on('click', function () {
             alert('添加追蹤時發生錯誤。');
         }
     });
+
+    // 獲取 CSRF token 的輔助函數
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 });
+
+
