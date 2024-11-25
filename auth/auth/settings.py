@@ -20,12 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^#!!l88b9zw5eqp@sn*qvo#s=(^-x2h--x+8ww4j6cvdfau#6s'
+SECRET_KEY = 'django-insecure-bv!ws!^x*5riqkz$vg#3d(m21mzm58wc#taf9t-x3!(i4jqevx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['web.nightcover.com.tw', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'web',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +54,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://web.nightcover.com.tw:55555",  # ecoweb 的域名
+    "http://web.nightcover.com.tw:55554",  # auth 的域名
 ]
 
 CORS_ALLOW_METHODS = [
