@@ -1,0 +1,141 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container mt-4">
+      <div class="card">
+        <div class="card-header bg-light">
+          <h4>Strategy Parameters</h4>
+        </div>
+        <div class="card-body">
+          <form id="strategy-form" method="POST">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-6">
+                <label for="stock1" class="form-label">Stock 1</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="stock1"
+                  name="stock1"
+                  value="AAPL"
+                  required
+                />
+              </div>
+              <div class="col-md-6">
+                <label for="stock2" class="form-label">Stock 2</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="stock2"
+                  name="stock2"
+                  value="GLD"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="start_date"
+                  name="start_date"
+                  value="2021-01-01"
+                  required
+                />
+              </div>
+              <div class="col-md-6">
+                <label for="end_date" class="form-label">End Date</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="end_date"
+                  name="end_date"
+                  value="2024-01-01"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <label for="n_std" class="form-label">n * std</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="n_std"
+                  name="n_std"
+                  value="2"
+                  required
+                />
+              </div>
+              <div class="col-md-6">
+                <label for="window_size" class="form-label">Window Size</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="window_size"
+                  name="window_size"
+                  value="200"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="row mt-4">
+              <div class="col-md-12 text-end">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="button" id="add-track-btn" class="btn btn-success">Add Track</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 結果展示區 -->
+      <div class="mt-4">
+        <h4>Strategy Results</h4>
+        <div id="price-chart" class="mb-4"></div>
+      </div>
+
+      <div class="mt-4">
+        <h4>Bollinger Bands & Signals</h4>
+        <div id="bollinger-chart" class="mb-4"></div>
+      </div>
+
+      <div class="mt-4">
+        <h4>Profits & Loss</h4>
+        <div id="profit-chart" class="mb-4"></div>
+      </div>
+
+      <div class="mt-4">
+        <h4>Details</h4>
+        <table id="signal-table" class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Action of AAPL</th>
+              <th>Price of AAPL</th>
+              <th>Action of GLD</th>
+              <th>Price of GLD</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <script>
+      const csrfToken = "{{ csrf_token }}"; // 定義 CSRF token，讓外部JS文件能使用
+    </script>
+    <script src="{% static 'blog/js/strategy.js' %}"></script>
+    <!-- 引入外部 JS 文件 -->
+{% endblock %}

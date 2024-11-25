@@ -1,0 +1,8 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<h2>Please login</h2>
+<p>Before you can access the page, please login or register an account.</p>
+<a href="{% url 'login' %}?next={{ next_url }}">Login</a>
+<a href="{% url 'register' %}?next={{ next_url }}">Register</a>
+{% endblock %}
