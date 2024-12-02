@@ -26,6 +26,17 @@ def calculate_strategy(request):
 def rsi_backtest(request):
     return render(request, 'blog/rsi2_backtest.html')
 
+@login_required
+def stock_selection(request):
+    return render(request, 'blog/stock_selection.html')
+
+@login_required
+def stock_pricing(request):
+    return render(request, 'blog/stock_pricing.html')
+
+@login_required
+def pe_ratio(request):
+    return render(request, 'blog/stock_perrc.html')
 
 def test(request):
     print("hi")

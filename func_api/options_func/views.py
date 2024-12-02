@@ -14,8 +14,21 @@ from django.http import QueryDict
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from .models import UserTracker  # 添加這行在文件頂部
-from rest_framework import status
+from rest_framework import status        
+import os
+# from fin import *
+import sys
+from dotenv import load_dotenv
+sys.path.append('/home/ouvic/Eco_Web/finlab')  # 添加這行以將路徑添加到模組搜索路徑
+from fin import *  # 從指定路徑導入 fin 模組
+from finlab import data, login
 
+# 添加項目根目錄到 Python 路徑
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+sys.path.append(project_root)
+
+# 載入 .env 文件
+load_dotenv(os.path.join(project_root, '.env'))
 
 @api_view(['POST'])
 def simple_json_api(request):
@@ -154,3 +167,38 @@ class AddTrackView(APIView):
         except Exception as e:
             print(f"Error untracking: {str(e)}")
             return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class StockSelectionView(APIView):
+    def post(self, request):
+        print(request.data)
+
+        # from token_data import token
+        token = os.getenv('FIN_TOKEN')
+        print(token)
+        # token = "y90Rux5imaC1eUO6RPtxpsUZ7DtJLxnD12xhfwrXYrFUz0OmMNt9qnXUSlDHcvff#free"
+        # print(token)
+        login(token)
+        # 獲取請求中的參數
+        
+        
+        # net_revenue = get_data(datename="monthly:net_revenue")
+        # net_revenue_2ma = net_revenue.rolling(2).mean()
+        # net_revenue_2ma_max = net_revenue_2ma.rolling(16, min_periods=6).max()
+        # net_revenue_2ma == net_revenue_2ma_max
+        rev = revenue_average_new_high(check_num=12, period=2)
+        print(rev)
+        print("test")
+        
+        # 獲取最新日期的行
+        latest_date = rev.index.max()
+        latest_row = rev.loc[latest_date]
+
+        # 提取最新日期中所有 True 的股票代碼
+        selected_stocks = [{'date': latest_date, 'stock_code': stock_code} for stock_code, is_selected in latest_row.items() if is_selected]
+
+        # 返回選股結果
+        print(selected_stocks)
+        return Response({'selected_stocks': selected_stocks})
+        
+        # return Response({'message': 'Hello, world!'})

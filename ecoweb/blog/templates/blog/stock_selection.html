@@ -1,0 +1,105 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>股票篩選</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">篩選條件</h5>
+                    <form id="stockFilterForm">
+                        <div class="mb-3">
+                            <label for="startDate" class="form-label">開始日期</label>
+                            <input type="date" class="form-control" id="startDate" name="startDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="endDate" class="form-label">結束日期</label>
+                            <input type="date" class="form-control" id="endDate" name="endDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="filterType" class="form-label">篩選指標</label>
+                            <select class="form-select" id="filterType" name="filterType" required>
+                                <option value="">請選擇指標</option>
+                                <option value="pe_ratio">本益比</option>
+                                <option value="pb_ratio">股價淨值比</option>
+                                <option value="dividend_yield">殖利率</option>
+                                <option value="revenue_growth">營收成長率</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="filterValue" class="form-label">篩選值</label>
+                            <input type="number" class="form-control" id="filterValue" name="filterValue" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">開始篩選</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">篩選結果</h5>
+                    <table id="resultTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>股票代碼</th>
+                                <th>公司名稱</th>
+                                <th>指標值</th>
+                                <th>最新收盤價</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#stockFilterForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        $.ajax({
+            url: 'http://web.nightcover.com.tw:55556/api/stock_selection/',
+            type: 'POST',
+            data: {
+                start_date: $('#startDate').val(),
+                end_date: $('#endDate').val(),
+                filter_type: $('#filterType').val(),
+                filter_value: $('#filterValue').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                let tableBody = $('#resultTable tbody');
+                tableBody.empty();
+                
+                response.selected_stocks.forEach(function(stock) {
+                    tableBody.append(`
+                        <tr>
+                            <td>${stock.stock_code}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    `);
+                });
+                
+                $('#resultTable').DataTable();
+            },
+            error: function(xhr, status, error) {
+                alert('發生錯誤：' + error);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

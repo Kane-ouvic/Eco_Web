@@ -8,4 +8,5 @@ urlpatterns = [
     path('rsi_backtest/', views.rsi2_backtest, name='rsi_backtest'),
     path('test1/', views.TestView.as_view(), name='test1'),
     path('add_track/', views.AddTrackView.as_view(), name='add_track'),
+    path('stock_selection/', views.StockSelectionView.as_view(), name='stock_selection'),
 ]
