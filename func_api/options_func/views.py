@@ -176,7 +176,6 @@ class StockSelectionView(APIView):
         # from token_data import token
         token = os.getenv('FIN_TOKEN')
         print(token)
-        # token = "y90Rux5imaC1eUO6RPtxpsUZ7DtJLxnD12xhfwrXYrFUz0OmMNt9qnXUSlDHcvff#free"
         # print(token)
         login(token)
         # 獲取請求中的參數
