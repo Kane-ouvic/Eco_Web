@@ -9,4 +9,6 @@ urlpatterns = [
     path('test1/', views.TestView.as_view(), name='test1'),
     path('add_track/', views.AddTrackView.as_view(), name='add_track'),
     path('stock_selection/', views.StockSelectionView.as_view(), name='stock_selection'),
+    path('stock_pricing/', views.StockPricingView.as_view(), name='stock_pricing'),
+    path('pe_ratio_chart/', views.PeRatioChartView.as_view(), name='pe_ratio_chart'),
 ]
