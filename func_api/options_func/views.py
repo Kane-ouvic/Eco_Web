@@ -22,7 +22,8 @@ from dotenv import load_dotenv
 sys.path.append('/home/ouvic/Eco_Web/finlab')  # 添加這行以將路徑添加到模組搜索路徑
 from fin import *  # 從指定路徑導入 fin 模組
 from finlab import data, login
-
+import talib
+import numpy as np
 # 添加項目根目錄到 Python 路徑
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 sys.path.append(project_root)
@@ -323,7 +324,7 @@ class PeRatioChartView(APIView):
 
         try:
             pe_ratio = stock.info['trailingPE']
-            print(pe_ratio)
+            # print(pe_ratio)
             latest_eps = latest_price/pe_ratio
             pe_cheap = latest_eps * 10   # 10倍本益比
             pe_fair = latest_eps * 15    # 15倍本益比
@@ -350,7 +351,7 @@ class PeRatioChartView(APIView):
                     print(f"處理資料時發生錯誤: {e}")
                     print(f"問題資料: timestamp={i}, row={row}")
                     continue
-            print(candlestick_data)
+            # print(candlestick_data)
 
         except:
             pe_cheap = pe_fair = pe_expensive = 0
@@ -367,4 +368,124 @@ class PeRatioChartView(APIView):
             'dates': dates,
             'pe_lines': pe_lines,
             'candlestick_data': candlestick_data
+        }, status=status.HTTP_200_OK)
+        
+
+class CeilingFloorView(APIView):
+    def post(self, request):
+        stock_code = request.data.get('stockCode')
+        start_date = request.data.get('startDate')
+        ma_length = int(request.data.get('maLength'))
+        ma_type = request.data.get('maType')
+        method = request.data.get('method')
+        
+        stock = yf.download(f"{stock_code}.TW", start=start_date)
+        
+        if ma_type == 'sma':
+            ma = talib.SMA(stock['Close'], timeperiod=ma_length)
+        elif ma_type == 'wma':
+            ma = talib.WMA(stock['Close'], timeperiod=ma_length)
+        
+        candlestick_data = []
+        for i, row in stock.iterrows():
+            try:
+                timestamp = int(i.timestamp() * 1000)
+                candlestick_data.append([timestamp, float(row['Open']), float(row['High']), float(row['Low']), float(row['Close'])])
+            except Exception as e:
+                print(f"處理資料時發生錯誤: {e}")
+                print(f"問題資料: timestamp={i}, row={row}")
+                continue
+
+        # 計算天花板地板線
+        if method == 'method1':
+            # 計算乖離率 bias
+            bias = (stock['Close'] - ma) / ma
+            bias_ratio = bias.values
+            positive_bias_ratio = bias_ratio[bias_ratio > 0]
+            negative_bias_ratio = bias_ratio[bias_ratio < 0]
+            print(positive_bias_ratio.size)
+            print(negative_bias_ratio.size)
+            # 排序並取得95%分位的正乖離率和5%分位的負乖離率
+            if positive_bias_ratio.size > 0 and negative_bias_ratio.size > 0:
+                ceiling_ratio = np.percentile(positive_bias_ratio, 95)
+                floor_ratio = np.percentile(negative_bias_ratio, 5)
+                
+                # 計算天花板地板價格
+                ceiling_price = ma * (1 + ceiling_ratio)
+                floor_price = ma * (1 + floor_ratio)
+                
+                
+                
+                print(f"天花板乖離率: {ceiling_ratio:.2%}")
+                print(f"地板乖離率: {floor_ratio:.2%}")
+            else:
+                ceiling_price = floor_price = ma
+                ceiling_signals = []
+                floor_signals = []
+                print("無法計算天花板地板線 - 資料不足")
+        
+        elif method == 'method2':
+            
+            bias = (stock['Close'] - ma) / ma
+            bias_ratio = bias.values
+            positive_bias_ratio = bias_ratio[bias_ratio > 0]
+            negative_bias_ratio = bias_ratio[bias_ratio < 0]
+            
+            neg_bias_mean = np.mean(negative_bias_ratio)
+            pos_bias_mean = np.mean(positive_bias_ratio)
+            
+            neg_bias_std = np.std(negative_bias_ratio)
+            pos_bias_std = np.std(positive_bias_ratio)
+            
+            ceiling_price = ma * (1 + pos_bias_mean +  2* pos_bias_std)
+            floor_price = ma * (1 - neg_bias_mean - 2 * neg_bias_std)
+        
+        elif method == 'method3':
+            # 計算乖離率 bias
+            bias = (stock['Close'] - ma) / ma
+            bias_ratio = bias.values
+            positive_bias_ratio = bias_ratio[bias_ratio > 0]
+            negative_bias_ratio = bias_ratio[bias_ratio < 0]
+            print(positive_bias_ratio.size)
+            print(negative_bias_ratio.size)
+            # 排序並取得95%分位的正乖離率和5%分位的負乖離率
+            if positive_bias_ratio.size > 0 and negative_bias_ratio.size > 0:
+                ceiling_ratio = np.percentile(positive_bias_ratio, 99)
+                floor_ratio = np.percentile(negative_bias_ratio, 1)
+                
+                # 計算天花板地板價格
+                ceiling_price = ma * (1 + ceiling_ratio)
+                floor_price = ma * (1 + floor_ratio)
+                
+                
+                
+                print(f"天花板乖離率: {ceiling_ratio:.2%}")
+                print(f"地板乖離率: {floor_ratio:.2%}")
+            else:
+                ceiling_price = floor_price = ma
+                ceiling_signals = []
+                floor_signals = []
+                print("無法計算天花板地板線 - 資料不足")
+            
+        
+        
+        # 找出突破訊號
+        ceiling_signals = []
+        floor_signals = []
+                
+        for i in range(len(stock)):
+            timestamp = int(stock.index[i].timestamp() * 1000)
+            if stock['Close'][i] > ceiling_price[i]:
+                ceiling_signals.append([timestamp, stock['Close'][i], 1])  # 1代表突破天花板
+            elif stock['Close'][i] < floor_price[i]:
+                floor_signals.append([timestamp, stock['Close'][i], -1])  # -1代表突破地板
+
+        return Response({
+            'success': True,
+            'ma': ma.fillna(-2147483648),
+            'ceiling_price': ceiling_price.fillna(-2147483648),
+            'floor_price': floor_price.fillna(-2147483648),
+            'candlestick_data': candlestick_data,
+            'ceiling_signals': ceiling_signals,
+            'floor_signals': floor_signals
         }, status=status.HTTP_200_OK)

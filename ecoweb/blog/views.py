@@ -38,6 +38,10 @@ def stock_pricing(request):
 def pe_ratio(request):
     return render(request, 'blog/stock_perrc.html')
 
+@login_required
+def ceiling_floor(request):
+    return render(request, 'blog/ceiling_floor.html')
+
 def test(request):
     print("hi")
     # return render(request, 'blog')

@@ -10,6 +10,7 @@ urlpatterns = [
     path('stock_selection/', views.stock_selection, name='stock_selection'),
     path('stock_pricing/', views.stock_pricing, name='stock_pricing'),
     path('stock_peratio/', views.pe_ratio, name='pe_ratio'),
+    path('ceiling_floor/', views.ceiling_floor, name='ceiling_floor'),
     # path('login/', views.login_view, name='login'),
     # path('logout/', views.logout_view, name='logout'),
     # path('register/', views.register, name='register'),

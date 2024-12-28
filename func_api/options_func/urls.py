@@ -11,4 +11,5 @@ urlpatterns = [
     path('stock_selection/', views.StockSelectionView.as_view(), name='stock_selection'),
     path('stock_pricing/', views.StockPricingView.as_view(), name='stock_pricing'),
     path('pe_ratio_chart/', views.PeRatioChartView.as_view(), name='pe_ratio_chart'),
+    path('ceiling_floor/', views.CeilingFloorView.as_view(), name='ceiling_floor'),
 ]
