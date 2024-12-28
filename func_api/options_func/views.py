@@ -551,3 +551,34 @@ class KdMacdBoolView(APIView):
             'bool_upper': bool['UPPERBAND'].fillna(-2147483648),
             'bool_lower': bool['LOWERBAND'].fillna(-2147483648)
         }, status=status.HTTP_200_OK)
+        
+    
+class RsiAdxDmiView(APIView):
+    def post(self, request):
+        print(request.data)
+        stock_code = request.data.get('stockCode')
+        start_date = request.data.get('startDate')
+        stock = yf.download(f"{stock_code}.TW", start=start_date)
+        
+        rsi = talib.RSI(stock['Close'], timeperiod=14)
+        adx = talib.ADX(stock['High'], stock['Low'], stock['Close'], timeperiod=14)
+        plus_di = talib.PLUS_DI(stock['High'], stock['Low'], stock['Close'], timeperiod=14)
+        minus_di = talib.MINUS_DI(stock['High'], stock['Low'], stock['Close'], timeperiod=14)
+        candlestick_data = []
+        for i, row in stock.iterrows():
+            try:
+                timestamp = int(i.timestamp() * 1000)
+                candlestick_data.append([timestamp, float(row['Open']), float(row['High']), float(row['Low']), float(row['Close'])])
+            except Exception as e:
+                print(f"處理資料時發生錯誤: {e}")
+                print(f"問題資料: timestamp={i}, row={row}")
+                continue
+        
+        return Response({
+            'success': True,
+            'candlestick_data': candlestick_data,
+            'rsi': rsi.fillna(-2147483648),
+            'adx': adx.fillna(-2147483648),
+            'plus_di': plus_di.fillna(-2147483648),
+            'minus_di': minus_di.fillna(-2147483648)
+        }, status=status.HTTP_200_OK)

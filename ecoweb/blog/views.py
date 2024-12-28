@@ -46,6 +46,10 @@ def ceiling_floor(request):
 def kd_macd_bool(request):
     return render(request, 'blog/kd_macd_bool.html')
 
+@login_required
+def rsi_adx_dmi(request):
+    return render(request, 'blog/rsi_adx_dmi.html')
+
 def test(request):
     print("hi")
     # return render(request, 'blog')

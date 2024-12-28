@@ -12,6 +12,7 @@ urlpatterns = [
     path('stock_peratio/', views.pe_ratio, name='pe_ratio'),
     path('ceiling_floor/', views.ceiling_floor, name='ceiling_floor'),
     path('kd_macd_bool/', views.kd_macd_bool, name='kd_macd_bool'),
+    path('rsi_adx_dmi/', views.rsi_adx_dmi, name='rsi_adx_dmi'),
     # path('login/', views.login_view, name='login'),
     # path('logout/', views.logout_view, name='logout'),
     # path('register/', views.register, name='register'),

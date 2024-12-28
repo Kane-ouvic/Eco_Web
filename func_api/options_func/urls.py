@@ -13,4 +13,5 @@ urlpatterns = [
     path('pe_ratio_chart/', views.PeRatioChartView.as_view(), name='pe_ratio_chart'),
     path('ceiling_floor/', views.CeilingFloorView.as_view(), name='ceiling_floor'),
     path('kd_macd_bool/', views.KdMacdBoolView.as_view(), name='kd_macd_bool'),
+    path('rsi_adx_dmi/', views.RsiAdxDmiView.as_view(), name='rsi_adx_dmi'),
 ]
