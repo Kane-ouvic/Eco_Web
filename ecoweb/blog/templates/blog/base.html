@@ -23,19 +23,20 @@
             <span class="navbar-brand mb-0 h1">Stock Website</span>
             <a href="/blog/test" class="btn btn-outline-light me-2">Home</a>
             <!-- <a href="#" class="btn btn-outline-light me-2">About</a> -->
-            <a href="/blog/calculate_strategy" class="btn btn-outline-light me-2">Correlation</a>
-            <a href="/blog/rsi_backtest/" class="btn btn-outline-light me-2">Backtest</a>
+            <a href="/blog/calculate_strategy" class="btn btn-outline-light me-2">HW1</a>
+            <a href="/blog/rsi_backtest/" class="btn btn-outline-light me-2">HW2</a>
             <a href="/blog/stock_selection" class="btn btn-outline-light me-2">Stock Selection</a>
-            <a href="/blog/stock_pricing" class="btn btn-outline-light me-2">Stock Pricing</a>
-            <a href="/blog/stock_peratio" class="btn btn-outline-light me-2">PE Ratio</a>
-            <a href="/blog/ceiling_floor" class="btn btn-outline-light me-2">Ceiling Floor</a>
+            <a href="/blog/stock_pricing" class="btn btn-outline-light me-2">HW9</a>
+            <a href="/blog/stock_peratio" class="btn btn-outline-light me-2">HW10</a>
+            <a href="/blog/ceiling_floor" class="btn btn-outline-light me-2">HW11</a>
+            <a href="/blog/kd_macd_bool" class="btn btn-outline-light me-2">HW12</a>
           </div>
           <div class="d-flex">
             <!-- <a href="#" class="btn btn-outline-light me-2">Contact</a> -->
             {% if user.is_authenticated %}
               <span class="navbar-text me-3">Welcome, {{ user.username }}!</span>
               <a href="{% url 'monitor' %}" class="btn btn-outline-light me-2">Monitor</a>
-              <a href="#" class="btn btn-outline-light">Profile</a>
+              <!-- <a href="#" class="btn btn-outline-light">Profile</a> -->
               <a href="{% url 'logout' %}" class="btn btn-outline-light ms-2">Logout</a>
             {% else %}
               <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Login</a>

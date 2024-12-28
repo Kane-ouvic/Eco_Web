@@ -480,6 +480,7 @@ class CeilingFloorView(APIView):
             elif stock['Close'][i] < floor_price[i]:
                 floor_signals.append([timestamp, stock['Close'][i], -1])  # -1代表突破地板
 
+        
         return Response({
             'success': True,
             'ma': ma.fillna(-2147483648),
@@ -488,4 +489,65 @@ class CeilingFloorView(APIView):
             'candlestick_data': candlestick_data,
             'ceiling_signals': ceiling_signals,
             'floor_signals': floor_signals
+        }, status=status.HTTP_200_OK)
+        
+
+class KdMacdBoolView(APIView):
+    def post(self, request):
+        print(request.data)
+        stock_code = request.data.get('stockCode')
+        start_date = request.data.get('startDate')
+        stock = yf.download(f"{stock_code}.TW", start=start_date)
+        
+        # 初始化 macd 字典
+        kd = {}
+        macd = {}
+        bool = {}
+        # 計算 MACD 指標
+        kd['K'], kd['D'] = talib.STOCH(stock['High'], stock['Low'], stock['Close'], fastk_period=9, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
+        macd['MACD'], macd['signal'], macd['hist'] = talib.MACD(stock['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
+        bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = talib.BBANDS(stock['Close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
+        
+        # print(kd)
+        # print("KD指標的欄位名稱:")
+        # print(kd.index.names)
+        # print("\nKD指標的所有欄位:")
+        # print(kd.columns)
+        
+        # print("\nMACD指標的欄位名稱:")  
+        # print(macd.index.names)
+        # print("\nMACD指標的所有欄位:")
+        # print(macd.columns)
+
+        # print(bool)
+        # print(bool['MIDDLEBAND'])
+        # print(bool['UPPERBAND'])
+        # print(bool['LOWERBAND'])
+        # print(macd_data)
+        # print(macd_signal)
+        # print(macd_hist)
+        
+        
+        candlestick_data = []
+        for i, row in stock.iterrows():
+            try:
+                timestamp = int(i.timestamp() * 1000)
+                candlestick_data.append([timestamp, float(row['Open']), float(row['High']), float(row['Low']), float(row['Close'])])
+            except Exception as e:
+                print(f"處理資料時發生錯誤: {e}")
+                print(f"問題資料: timestamp={i}, row={row}")
+                continue
+        
+        
+        return Response({
+            'success': True,
+            'candlestick_data': candlestick_data,
+            'kd_K': kd['K'].fillna(-2147483648),
+            'kd_D': kd['D'].fillna(-2147483648),
+            'macd_data': macd['MACD'].fillna(-2147483648),
+            'macd_signal': macd['signal'].fillna(-2147483648),
+            'macd_hist': macd['hist'].fillna(-2147483648),
+            'bool_mid': bool['MIDDLEBAND'].fillna(-2147483648),
+            'bool_upper': bool['UPPERBAND'].fillna(-2147483648),
+            'bool_lower': bool['LOWERBAND'].fillna(-2147483648)
         }, status=status.HTTP_200_OK)

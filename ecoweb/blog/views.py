@@ -42,6 +42,10 @@ def pe_ratio(request):
 def ceiling_floor(request):
     return render(request, 'blog/ceiling_floor.html')
 
+@login_required
+def kd_macd_bool(request):
+    return render(request, 'blog/kd_macd_bool.html')
+
 def test(request):
     print("hi")
     # return render(request, 'blog')

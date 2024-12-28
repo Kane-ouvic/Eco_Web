@@ -12,4 +12,5 @@ urlpatterns = [
     path('stock_pricing/', views.StockPricingView.as_view(), name='stock_pricing'),
     path('pe_ratio_chart/', views.PeRatioChartView.as_view(), name='pe_ratio_chart'),
     path('ceiling_floor/', views.CeilingFloorView.as_view(), name='ceiling_floor'),
+    path('kd_macd_bool/', views.KdMacdBoolView.as_view(), name='kd_macd_bool'),
 ]
