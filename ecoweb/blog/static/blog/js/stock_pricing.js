@@ -82,21 +82,21 @@ function renderChart(data) {
         },
         series: [
             {
-                name: '昂貴價',
+                name: '昂貴價區間',
                 data: data.methods.map(m => m.expensive),
                 color: '#FF0000'
             }
             , {
-                name: '合理價到昂貴價',
+                name: '合理價到昂貴價區間',
                 data: data.methods.map(m => m.fair_expensive),
                 color: '#FFC0CB'
             }, {
-                name: '合理價',
+                name: '便宜到合理價區間',
                 data: data.methods.map(m => m.fair),
                 color: '#00FF00'
             }
             , {
-                name: '便宜價',
+                name: '便宜價區間',
                 data: data.methods.map(m => m.cheap),
                 color: '#FFFF00'
             },

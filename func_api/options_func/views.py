@@ -123,7 +123,7 @@ class AddTrackView(APIView):
             n_std = float(request.data.get('n_std'))
             track_date = timezone.now()
 
-            # 檢查必要的字段是否存在
+            # 檢查必要的字段否存在
             if not all([stock1, stock2, start_date, end_date, window_size, n_std]):
                 return Response({'success': False, 'error': '缺少必要的字段'})
 
@@ -204,7 +204,7 @@ class StockSelectionView(APIView):
 
 class StockPricingView(APIView):
     def post(self, request):
-        print(request.data)
+        # print(request.data)
         # 從請求中獲取數據
         stock_code = request.data.get('stockCode')
         year = request.data.get('year')
@@ -214,7 +214,7 @@ class StockPricingView(APIView):
         
         # 取得歷史資料
         hist = stock.history(period=f"{year}y")
-        print(hist)
+        # print(hist)
         
         # 取得最新價格
         latest_price = hist['Close'][-1]
@@ -315,5 +315,56 @@ class StockPricingView(APIView):
 
 class PeRatioChartView(APIView):
     def post(self, request):
-        print(request.data)
-        return Response({'message': 'Testttttttttt'})
+        stock_code = request.data.get('stockCode')
+        stock = yf.Ticker(f"{stock_code}.TW")
+        hist = stock.history(period="10y")
+        latest_price = hist['Close'].iloc[-1]
+        latest_price = round(latest_price, 2)
+
+        try:
+            pe_ratio = stock.info['trailingPE']
+            print(pe_ratio)
+            latest_eps = latest_price/pe_ratio
+            pe_cheap = latest_eps * 10   # 10倍本益比
+            pe_fair = latest_eps * 15    # 15倍本益比
+            pe_expensive = latest_eps * 20  # 20倍本益比
+        
+            eps = hist['Close'] / pe_ratio
+            pe_multipliers = [27, 24.6, 22.2, 19.8, 17.4, 15]
+            pe_lines = {m: (eps * m).tolist() for m in pe_multipliers}
+            dates = hist.index.strftime('%Y-%m-%d').tolist()
+            
+            # 準備 K 棒圖數據
+            candlestick_data = []
+            for i, row in hist.iterrows():
+                try:
+                    timestamp = int(i.timestamp() * 1000)
+                    candlestick_data.append([
+                        timestamp,
+                        float(row['Open']), 
+                        float(row['High']),
+                        float(row['Low']),
+                        float(row['Close'])
+                    ])
+                except Exception as e:
+                    print(f"處理資料時發生錯誤: {e}")
+                    print(f"問題資料: timestamp={i}, row={row}")
+                    continue
+            print(candlestick_data)
+
+        except:
+            pe_cheap = pe_fair = pe_expensive = 0
+            dates = []
+            # candlestick_data = []
+        
+        pricing_data = [
+            {'name': '本益比法', 'cheap': pe_cheap, 'fair': pe_fair - pe_cheap, 'fair_expensive': (pe_expensive - pe_fair), 'expensive': (pe_expensive - pe_fair)* 1.5}
+        ]
+        return Response({
+            'success': True,
+            'latest_price': latest_price,
+            'pricing_data': pricing_data,
+            'dates': dates,
+            'pe_lines': pe_lines,
+            'candlestick_data': candlestick_data
+        }, status=status.HTTP_200_OK)
