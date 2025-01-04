@@ -1,8 +1,8 @@
 import yfinance as yf
 import talib
 
-def rsiadxdmi(stock_code, start_date):
-    stock = yf.download(f"{stock_code}.TW", start=start_date)
+def rsiadxdmi(stock_code, start_date, end_date):
+    stock = yf.download(f"{stock_code}.TW", start=start_date, end=end_date)
         
     rsi = talib.RSI(stock['Close'], timeperiod=14)
     adx = talib.ADX(stock['High'], stock['Low'], stock['Close'], timeperiod=14)

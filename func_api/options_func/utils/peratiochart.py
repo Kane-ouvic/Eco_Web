@@ -34,15 +34,15 @@ def peratio_chart(stock_code):
                 print(f"處理資料時發生錯誤: {e}")
                 print(f"問題資料: timestamp={i}, row={row}")
                 continue
-            # print(candlestick_data)
+            # print(candlestick_data)\
+        pricing_data = [
+            {'name': '本益比法', 'cheap': pe_cheap, 'fair': pe_fair - pe_cheap, 'fair_expensive': (pe_expensive - pe_fair), 'expensive': (pe_expensive - pe_fair)* 1.5}
+        ]
 
     except:
         pe_cheap = pe_fair = pe_expensive = 0
         dates = []
-        # candlestick_data = []
-        
-        pricing_data = [
-            {'name': '本益比法', 'cheap': pe_cheap, 'fair': pe_fair - pe_cheap, 'fair_expensive': (pe_expensive - pe_fair), 'expensive': (pe_expensive - pe_fair)* 1.5}
-        ]
+        candlestick_data = []
+        pricing_data = []
         
     return latest_price, pricing_data, dates, pe_lines, candlestick_data

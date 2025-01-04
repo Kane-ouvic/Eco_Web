@@ -1,8 +1,10 @@
 import yfinance as yf
 import talib
 
-def kdmacdbool(stock_code, start_date):
-    stock = yf.download(f"{stock_code}.TW", start=start_date)
+def kdmacdbool(stock_code, start_date, end_date):
+    stock = yf.download(f"{stock_code}.TW", start=start_date, end=end_date)
+
+    print(stock)
         
     # 初始化 macd 字典
     kd = {}
