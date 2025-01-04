@@ -10,13 +10,17 @@ import json
 import logging
 from .utils.distance_method import distance_method
 from .utils.rsi_method import rsi_method
+from .utils.stockpricing import stock_pricing
+from .utils.peratiochart import peratio_chart
+from .utils.kdmacdbool import kdmacdbool
+from .utils.ceilingfloor import ceilingfloor
+from .utils.rsiadxdmi import rsiadxdmi
 from django.http import QueryDict
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from .models import UserTracker  # 添加這行在文件頂部
 from rest_framework import status        
 import os
-# from fin import *
 import sys
 from dotenv import load_dotenv
 sys.path.append('/home/ouvic/Eco_Web/finlab')  # 添加這行以將路徑添加到模組搜索路徑
@@ -182,10 +186,6 @@ class StockSelectionView(APIView):
         # 獲取請求中的參數
         
         
-        # net_revenue = get_data(datename="monthly:net_revenue")
-        # net_revenue_2ma = net_revenue.rolling(2).mean()
-        # net_revenue_2ma_max = net_revenue_2ma.rolling(16, min_periods=6).max()
-        # net_revenue_2ma == net_revenue_2ma_max
         rev = revenue_average_new_high(check_num=12, period=2)
         print(rev)
         print("test")
@@ -209,158 +209,19 @@ class StockPricingView(APIView):
         # 從請求中獲取數據
         stock_code = request.data.get('stockCode')
         year = request.data.get('year')
-        
-        # 使用yfinance抓取股票資料
-        stock = yf.Ticker(f"{stock_code}.TW")
-        
-        # 取得歷史資料
-        hist = stock.history(period=f"{year}y")
-        # print(hist)
-        
-        # 取得最新價格
-        latest_price = hist['Close'][-1]
-        latest_price = round(latest_price, 2)
-        
-        # 計算股利法
-        try:
-            dividends = stock.dividends
-            print(dividends)
-            avg_dividend = dividends.mean()
-            div_cheap = avg_dividend * 15
-            div_fair = avg_dividend * 20
-            div_expensive = avg_dividend * 30
-        except:
-            div_cheap = div_fair = div_expensive = 0
-            
-        # 計算高低價法
-        high = hist['High'].max()
-        low = hist['Low'].min()
-        hl_cheap = low
-        hl_fair = (hist['High'].mean() + hist['Low'].mean())/2
-        hl_expensive = high
-        
-        # 計算本淨比法
-        try:
-            bps = stock.info.get('bookValue')  # yfinance 提供最新每股淨值
-            pb_ratio = stock.info['priceToBook']
-            book_value = latest_price/pb_ratio
-            
-            highest_pbr = (hist['High'] / bps).mean()  # 平均最高 PBR
-            lowest_pbr = (hist['Low'] / bps).mean()   # 平均最低 PBR
-            average_pbr = (hist['Close'] / bps).mean()  # 平均 PBR
-            
-            
-            pb_cheap = book_value * 0.8  # 0.8倍淨值
-            pb_fair = book_value * 1.5   # 1.5倍淨值
-            pb_expensive = book_value * 2.2  # 2.2倍淨值
-        except:
-            pb_cheap = pb_fair = pb_expensive = 0
-            
-        # 計算本益比法
-        try:
-            pe_ratio = stock.info['trailingPE']
-            print(pe_ratio)
-            eps = latest_price/pe_ratio
-            pe_cheap = eps * 10   # 10倍本益比
-            pe_fair = eps * 15    # 15倍本益比
-            pe_expensive = eps * 20  # 20倍本益比
-        except:
-            pe_cheap = pe_fair = pe_expensive = 0
-            
-        div_total = div_expensive + (div_expensive - div_fair)*1.5
-        hl_total = hl_expensive + (hl_expensive - hl_fair)*1.5
-        pb_total = pb_expensive + (pb_expensive - pb_fair)*1.5
-        pe_total = pe_expensive + (pe_expensive - pe_fair)*1.5
-        
-        max_total = max(div_total, hl_total, pb_total, pe_total)
-        
-        residual_div = max_total - div_total
-        residual_hl = max_total - hl_total
-        residual_pb = max_total - pb_total
-        residual_pe = max_total - pe_total
-        
-        
-        print(residual_div, residual_hl, residual_pb, residual_pe)
-        pricing_data = [
-            {'name': '股利法', 'cheap': div_cheap, 'fair': div_fair - div_cheap,'fair_expensive': (div_expensive - div_fair), 'expensive': (div_expensive - div_fair)*1.5 + residual_div },
-            {'name': '高低價法', 'cheap': hl_cheap, 'fair': hl_fair - hl_cheap, 'fair_expensive': (hl_expensive - hl_fair), 'expensive': (hl_expensive - hl_fair)*1.5 + residual_hl }, 
-            {'name': '本淨比法', 'cheap': pb_cheap, 'fair': pb_fair - pb_cheap, 'fair_expensive': (pb_expensive - pb_fair), 'expensive': (pb_expensive - pb_fair)*1.5 + residual_pb },
-            {'name': '本益比法', 'cheap': pe_cheap, 'fair': pe_fair - pe_cheap, 'fair_expensive': (pe_expensive - pe_fair), 'expensive': (pe_expensive - pe_fair)*1.5 + residual_pe }
-        ]
-        
-        #         # 計算每個方法的比例
-        # div_ratio = max_total / div_expensive if div_expensive != 0 else 1
-        # hl_ratio = max_total / hl_expensive if hl_expensive != 0 else 1
-        # pb_ratio = max_total / pb_expensive if pb_expensive != 0 else 1
-        # pe_ratio = max_total / pe_expensive if pe_expensive != 0 else 1
-
-        # pricing_data = [
-        #     {'name': '股利法', 'cheap': div_cheap * div_ratio, 'fair': (div_fair - div_cheap) * div_ratio, 'fair_expensive': (div_expensive - div_fair) * div_ratio, 'expensive': max_total},
-        #     {'name': '高低價法', 'cheap': hl_cheap * hl_ratio, 'fair': (hl_fair - hl_cheap) * hl_ratio, 'fair_expensive': (hl_expensive - hl_fair) * hl_ratio, 'expensive': max_total},
-        #     {'name': '本淨比法', 'cheap': pb_cheap * pb_ratio, 'fair': (pb_fair - pb_cheap) * pb_ratio, 'fair_expensive': (pb_expensive - pb_fair) * pb_ratio, 'expensive': max_total},
-        #     {'name': '本益比法', 'cheap': pe_cheap * pe_ratio, 'fair': (pe_fair - pe_cheap) * pe_ratio, 'fair_expensive': (pe_expensive - pe_fair) * pe_ratio, 'expensive': max_total}
-        # ]
-        # pricing_data = [
-        #     {'name': '股利法', 'cheap': 200, 'fair': 400, 'expensive': 600},
-        #     {'name': '高低價法', 'cheap': 250, 'fair': 450, 'expensive': 650},
-        #     {'name': '本淨比法', 'cheap': 300, 'fair': 500, 'expensive': 700},
-        #     {'name': '本益比法', 'cheap': 350, 'fair': 550, 'expensive': 750}
-        # ]
+        latest_price, pricing_data = stock_pricing(stock_code, year)
         
         return Response({
             'success': True,
             'latest_price': latest_price,
             'pricing_data': pricing_data
         }, status=status.HTTP_200_OK)
-        # return Response({'message': 'Testttttttttt'})
 
 class PeRatioChartView(APIView):
     def post(self, request):
         stock_code = request.data.get('stockCode')
-        stock = yf.Ticker(f"{stock_code}.TW")
-        hist = stock.history(period="10y")
-        latest_price = hist['Close'].iloc[-1]
-        latest_price = round(latest_price, 2)
+        latest_price, pricing_data, dates, pe_lines, candlestick_data = peratio_chart(stock_code)
 
-        try:
-            pe_ratio = stock.info['trailingPE']
-            # print(pe_ratio)
-            latest_eps = latest_price/pe_ratio
-            pe_cheap = latest_eps * 10   # 10倍本益比
-            pe_fair = latest_eps * 15    # 15倍本益比
-            pe_expensive = latest_eps * 20  # 20倍本益比
-        
-            eps = hist['Close'] / pe_ratio
-            pe_multipliers = [27, 24.6, 22.2, 19.8, 17.4, 15]
-            pe_lines = {m: (eps * m).tolist() for m in pe_multipliers}
-            dates = hist.index.strftime('%Y-%m-%d').tolist()
-            
-            # 準備 K 棒圖數據
-            candlestick_data = []
-            for i, row in hist.iterrows():
-                try:
-                    timestamp = int(i.timestamp() * 1000)
-                    candlestick_data.append([
-                        timestamp,
-                        float(row['Open']), 
-                        float(row['High']),
-                        float(row['Low']),
-                        float(row['Close'])
-                    ])
-                except Exception as e:
-                    print(f"處理資料時發生錯誤: {e}")
-                    print(f"問題資料: timestamp={i}, row={row}")
-                    continue
-            # print(candlestick_data)
-
-        except:
-            pe_cheap = pe_fair = pe_expensive = 0
-            dates = []
-            # candlestick_data = []
-        
-        pricing_data = [
-            {'name': '本益比法', 'cheap': pe_cheap, 'fair': pe_fair - pe_cheap, 'fair_expensive': (pe_expensive - pe_fair), 'expensive': (pe_expensive - pe_fair)* 1.5}
-        ]
         return Response({
             'success': True,
             'latest_price': latest_price,
@@ -379,107 +240,8 @@ class CeilingFloorView(APIView):
         ma_type = request.data.get('maType')
         method = request.data.get('method')
         
-        stock = yf.download(f"{stock_code}.TW", start=start_date)
+        ma, ceiling_price, floor_price, candlestick_data, ceiling_signals, floor_signals = ceilingfloor(stock_code, start_date, ma_length, ma_type, method)
         
-        if ma_type == 'sma':
-            ma = talib.SMA(stock['Close'], timeperiod=ma_length)
-        elif ma_type == 'wma':
-            ma = talib.WMA(stock['Close'], timeperiod=ma_length)
-        
-        candlestick_data = []
-        for i, row in stock.iterrows():
-            try:
-                timestamp = int(i.timestamp() * 1000)
-                candlestick_data.append([timestamp, float(row['Open']), float(row['High']), float(row['Low']), float(row['Close'])])
-            except Exception as e:
-                print(f"處理資料時發生錯誤: {e}")
-                print(f"問題資料: timestamp={i}, row={row}")
-                continue
-
-        # 計算天花板地板線
-        if method == 'method1':
-            # 計算乖離率 bias
-            bias = (stock['Close'] - ma) / ma
-            bias_ratio = bias.values
-            positive_bias_ratio = bias_ratio[bias_ratio > 0]
-            negative_bias_ratio = bias_ratio[bias_ratio < 0]
-            print(positive_bias_ratio.size)
-            print(negative_bias_ratio.size)
-            # 排序並取得95%分位的正乖離率和5%分位的負乖離率
-            if positive_bias_ratio.size > 0 and negative_bias_ratio.size > 0:
-                ceiling_ratio = np.percentile(positive_bias_ratio, 95)
-                floor_ratio = np.percentile(negative_bias_ratio, 5)
-                
-                # 計算天花板地板價格
-                ceiling_price = ma * (1 + ceiling_ratio)
-                floor_price = ma * (1 + floor_ratio)
-                
-                
-                
-                print(f"天花板乖離率: {ceiling_ratio:.2%}")
-                print(f"地板乖離率: {floor_ratio:.2%}")
-            else:
-                ceiling_price = floor_price = ma
-                ceiling_signals = []
-                floor_signals = []
-                print("無法計算天花板地板線 - 資料不足")
-        
-        elif method == 'method2':
-            
-            bias = (stock['Close'] - ma) / ma
-            bias_ratio = bias.values
-            positive_bias_ratio = bias_ratio[bias_ratio > 0]
-            negative_bias_ratio = bias_ratio[bias_ratio < 0]
-            
-            neg_bias_mean = np.mean(negative_bias_ratio)
-            pos_bias_mean = np.mean(positive_bias_ratio)
-            
-            neg_bias_std = np.std(negative_bias_ratio)
-            pos_bias_std = np.std(positive_bias_ratio)
-            
-            ceiling_price = ma * (1 + pos_bias_mean +  2* pos_bias_std)
-            floor_price = ma * (1 - neg_bias_mean - 2 * neg_bias_std)
-        
-        elif method == 'method3':
-            # 計算乖離率 bias
-            bias = (stock['Close'] - ma) / ma
-            bias_ratio = bias.values
-            positive_bias_ratio = bias_ratio[bias_ratio > 0]
-            negative_bias_ratio = bias_ratio[bias_ratio < 0]
-            print(positive_bias_ratio.size)
-            print(negative_bias_ratio.size)
-            # 排序並取得95%分位的正乖離率和5%分位的負乖離率
-            if positive_bias_ratio.size > 0 and negative_bias_ratio.size > 0:
-                ceiling_ratio = np.percentile(positive_bias_ratio, 99)
-                floor_ratio = np.percentile(negative_bias_ratio, 1)
-                
-                # 計算天花板地板價格
-                ceiling_price = ma * (1 + ceiling_ratio)
-                floor_price = ma * (1 + floor_ratio)
-                
-                
-                
-                print(f"天花板乖離率: {ceiling_ratio:.2%}")
-                print(f"地板乖離率: {floor_ratio:.2%}")
-            else:
-                ceiling_price = floor_price = ma
-                ceiling_signals = []
-                floor_signals = []
-                print("無法計算天花板地板線 - 資料不足")
-            
-        
-        
-        # 找出突破訊號
-        ceiling_signals = []
-        floor_signals = []
-                
-        for i in range(len(stock)):
-            timestamp = int(stock.index[i].timestamp() * 1000)
-            if stock['Close'][i] > ceiling_price[i]:
-                ceiling_signals.append([timestamp, stock['Close'][i], 1])  # 1代表突破天花板
-            elif stock['Close'][i] < floor_price[i]:
-                floor_signals.append([timestamp, stock['Close'][i], -1])  # -1代表突破地板
-
         
         return Response({
             'success': True,
@@ -497,47 +259,13 @@ class KdMacdBoolView(APIView):
         print(request.data)
         stock_code = request.data.get('stockCode')
         start_date = request.data.get('startDate')
-        stock = yf.download(f"{stock_code}.TW", start=start_date)
+        # stock = yf.download(f"{stock_code}.TW", start=start_date)
         
-        # 初始化 macd 字典
+        # # 初始化 macd 字典
         kd = {}
         macd = {}
         bool = {}
-        # 計算 MACD 指標
-        kd['K'], kd['D'] = talib.STOCH(stock['High'], stock['Low'], stock['Close'], fastk_period=9, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
-        macd['MACD'], macd['signal'], macd['hist'] = talib.MACD(stock['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
-        bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = talib.BBANDS(stock['Close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
-        
-        # print(kd)
-        # print("KD指標的欄位名稱:")
-        # print(kd.index.names)
-        # print("\nKD指標的所有欄位:")
-        # print(kd.columns)
-        
-        # print("\nMACD指標的欄位名稱:")  
-        # print(macd.index.names)
-        # print("\nMACD指標的所有欄位:")
-        # print(macd.columns)
-
-        # print(bool)
-        # print(bool['MIDDLEBAND'])
-        # print(bool['UPPERBAND'])
-        # print(bool['LOWERBAND'])
-        # print(macd_data)
-        # print(macd_signal)
-        # print(macd_hist)
-        
-        
-        candlestick_data = []
-        for i, row in stock.iterrows():
-            try:
-                timestamp = int(i.timestamp() * 1000)
-                candlestick_data.append([timestamp, float(row['Open']), float(row['High']), float(row['Low']), float(row['Close'])])
-            except Exception as e:
-                print(f"處理資料時發生錯誤: {e}")
-                print(f"問題資料: timestamp={i}, row={row}")
-                continue
-        
+        candlestick_data, kd['K'], kd['D'], macd['MACD'], macd['signal'], macd['hist'], bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = kdmacdbool(stock_code, start_date)
         
         return Response({
             'success': True,
@@ -558,21 +286,9 @@ class RsiAdxDmiView(APIView):
         print(request.data)
         stock_code = request.data.get('stockCode')
         start_date = request.data.get('startDate')
-        stock = yf.download(f"{stock_code}.TW", start=start_date)
+        # stock = yf.download(f"{stock_code}.TW", start=start_date)
         
-        rsi = talib.RSI(stock['Close'], timeperiod=14)
-        adx = talib.ADX(stock['High'], stock['Low'], stock['Close'], timeperiod=14)
-        plus_di = talib.PLUS_DI(stock['High'], stock['Low'], stock['Close'], timeperiod=14)
-        minus_di = talib.MINUS_DI(stock['High'], stock['Low'], stock['Close'], timeperiod=14)
-        candlestick_data = []
-        for i, row in stock.iterrows():
-            try:
-                timestamp = int(i.timestamp() * 1000)
-                candlestick_data.append([timestamp, float(row['Open']), float(row['High']), float(row['Low']), float(row['Close'])])
-            except Exception as e:
-                print(f"處理資料時發生錯誤: {e}")
-                print(f"問題資料: timestamp={i}, row={row}")
-                continue
+        candlestick_data, rsi, adx, plus_di, minus_di = rsiadxdmi(stock_code, start_date)
         
         return Response({
             'success': True,
