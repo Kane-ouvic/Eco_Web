@@ -6,13 +6,14 @@ document.addEventListener('DOMContentLoaded', function () {
 document.getElementById('search-button').addEventListener('click', function () {
     const stockCode = document.getElementById('stockCode').value;
     const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
     fetch(`${API_BASE_URL}/api/rsi_adx_dmi/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': '{{ csrf_token }}'  // 確保Django的CSRF保護
         },
-        body: JSON.stringify({ stockCode: stockCode, startDate: startDate })
+        body: JSON.stringify({ stockCode: stockCode, startDate: startDate, endDate: endDate })
     })
         .then(response => response.json())
         .then(data => {

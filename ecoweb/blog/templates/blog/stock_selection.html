@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>股票篩選</h2>
+    <h2>FinLab 股票篩選</h2>
     
     <div class="row">
         <div class="col-md-6">
@@ -11,7 +11,7 @@
                 <div class="card-body">
                     <h5 class="card-title">篩選條件</h5>
                     <form id="stockFilterForm">
-                        <div class="mb-3">
+                        <!-- <div class="mb-3">
                             <label for="startDate" class="form-label">開始日期</label>
                             <input type="date" class="form-control" id="startDate" name="startDate" required>
                         </div>
@@ -28,10 +28,22 @@
                                 <option value="dividend_yield">殖利率</option>
                                 <option value="revenue_growth">營收成長率</option>
                             </select>
+                        </div> -->
+                        <!-- <div class="mb-3">
+                            <label for="filterValue" class="form-label">篩選值</label>
+                            <input type="number" class="form-control" id="filterValue" name="filterValue" step="" required>
+                        </div> -->
+                        <div class="mb-3">
+                            <label for="monthlyRevenue" class="form-label">當月營收 (大於)</label>
+                            <input type="number" class="form-control" id="monthlyRevenue" name="monthlyRevenue" step="1000000" min="0" value="1000000" required>
                         </div>
                         <div class="mb-3">
-                            <label for="filterValue" class="form-label">篩選值</label>
-                            <input type="number" class="form-control" id="filterValue" name="filterValue" step="0.01" required>
+                            <label for="closingPrice" class="form-label">收盤價 (大於)</label>
+                            <input type="number" class="form-control" id="closingPrice" name="closingPrice" step="10" min="0" value="10" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="roa" class="form-label">ROA (大於)</label>
+                            <input type="number" class="form-control" id="roa" name="roa" step="0.01" value="0" required>
                         </div>
                         <button type="submit" class="btn btn-primary">開始篩選</button>
                     </form>
@@ -47,8 +59,6 @@
                         <thead>
                             <tr>
                                 <th>股票代碼</th>
-                                <th>公司名稱</th>
-                                <th>指標值</th>
                                 <th>最新收盤價</th>
                             </tr>
                         </thead>
@@ -72,10 +82,9 @@ $(document).ready(function() {
             url: 'http://web.nightcover.com.tw:55556/api/stock_selection/',
             type: 'POST',
             data: {
-                start_date: $('#startDate').val(),
-                end_date: $('#endDate').val(),
-                filter_type: $('#filterType').val(),
-                filter_value: $('#filterValue').val(),
+                monthlyRevenue: $('#monthlyRevenue').val(),
+                closingPrice: $('#closingPrice').val(),
+                roa: $('#roa').val(),
                 csrfmiddlewaretoken: '{{ csrf_token }}'
             },
             success: function(response) {
@@ -86,9 +95,7 @@ $(document).ready(function() {
                     tableBody.append(`
                         <tr>
                             <td>${stock.stock_code}</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td>${stock.latest_closing_price}</td>
                         </tr>
                     `);
                 });

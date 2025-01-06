@@ -1,3 +1,7 @@
+import os
+import sys
+from dotenv import load_dotenv
+sys.path.append('/home/ouvic/Eco_Web/finlab/')  # 添加這行以將路徑添加到模組搜索路徑
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -15,19 +19,19 @@ from .utils.peratiochart import peratio_chart
 from .utils.kdmacdbool import kdmacdbool
 from .utils.ceilingfloor import ceilingfloor
 from .utils.rsiadxdmi import rsiadxdmi
+from .utils.stock_selection import stock_selection
 from django.http import QueryDict
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from .models import UserTracker  # 添加這行在文件頂部
 from rest_framework import status        
-import os
-import sys
-from dotenv import load_dotenv
-sys.path.append('/home/ouvic/Eco_Web/finlab')  # 添加這行以將路徑添加到模組搜索路徑
 from fin import *  # 從指定路徑導入 fin 模組
 from finlab import data, login
 import talib
 import numpy as np
+import pandas as pd
+from .utils.pricing_strategy import pricing_strategy
+from .utils.entry_exit import entry_exit
 # 添加項目根目錄到 Python 路徑
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 sys.path.append(project_root)
@@ -177,31 +181,61 @@ class AddTrackView(APIView):
 class StockSelectionView(APIView):
     def post(self, request):
         print(request.data)
+        monthly_revenue = request.data.get('monthlyRevenue')
+        stock_price = request.data.get('closingPrice')
+        roa = request.data.get('roa')
 
-        # from token_data import token
-        token = os.getenv('FIN_TOKEN')
-        print(token)
-        # print(token)
+        # token = os.getenv('FIN_TOKEN')
+        token = '9KabngzgazwRsIf2lE3zr2qHHaCXRn/+qBTHJ5lSdCdrjKIgFQfGFg/SuQVA5htW#free'
+        if not token:
+            return Response({'error': 'FIN_TOKEN 未設置'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         login(token)
-        # 獲取請求中的參數
         
-        
-        rev = revenue_average_new_high(check_num=12, period=2)
-        print(rev)
-        print("test")
-        
-        # 獲取最新日期的行
-        latest_date = rev.index.max()
-        latest_row = rev.loc[latest_date]
+        try:
+            # 初始化 FinLab Data
+            rev1 = data.get('monthly_revenue:當月營收')
+            rev_ma = rev1.average(2)
+            condition1 = rev_ma > float(monthly_revenue)
 
-        # 提取最新日期中所有 True 的股票代碼
-        selected_stocks = [{'date': latest_date, 'stock_code': stock_code} for stock_code, is_selected in latest_row.items() if is_selected]
+            # 獲取收盤價數據
+            closing_price = data.get('price:收盤價')
+            condition2 = closing_price > float(stock_price)
 
-        # 返回選股結果
-        print(selected_stocks)
-        return Response({'selected_stocks': selected_stocks})
+            # 獲取最新日期的行
+            latest_date = rev1.index.max()
+            latest_row = rev1.loc[latest_date]
+            selected_stocks = condition1 & condition2
+            
+            # 提取最新日期中所有 True 的股票代碼、公司名稱和最新收盤價
+            selected_stocks = []
+            for stock_code, is_selected in latest_row.items():
+                if is_selected:
+                    try:
+                        latest_closing_price = closing_price.loc[latest_date, stock_code]
+                        # 確保收盤價大於設定值
+                        if latest_closing_price <= float(stock_price):
+                            print(f"股票代碼 {stock_code} 的收盤價小於或等於設定值: {latest_closing_price}，跳過")
+                            continue
+                        # 檢查最新收盤價是否為有效數值
+                        import math
+                        if not math.isfinite(latest_closing_price):
+                            print(f"股票代碼 {stock_code} 的收盤價無效: {latest_closing_price}，跳過")
+                            continue
+                        selected_stocks.append({
+                            'date': latest_date,
+                            'stock_code': stock_code,
+                            'latest_closing_price': latest_closing_price
+                        })
+                    except KeyError:
+                        print(f"無法獲取股票代碼 {stock_code} 的最新收盤價，跳過此股票")
+            
+            return Response({'selected_stocks': selected_stocks})
         
-        # return Response({'message': 'Hello, world!'})
+        except Exception as e:
+            print(f"Error during stock selection: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class StockPricingView(APIView):
     def post(self, request):
@@ -259,13 +293,15 @@ class KdMacdBoolView(APIView):
         print(request.data)
         stock_code = request.data.get('stockCode')
         start_date = request.data.get('startDate')
+        end_date = request.data.get('endDate')
+        print(stock_code, start_date, end_date)
         # stock = yf.download(f"{stock_code}.TW", start=start_date)
         
         # # 初始化 macd 字典
         kd = {}
         macd = {}
         bool = {}
-        candlestick_data, kd['K'], kd['D'], macd['MACD'], macd['signal'], macd['hist'], bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = kdmacdbool(stock_code, start_date)
+        candlestick_data, kd['K'], kd['D'], macd['MACD'], macd['signal'], macd['hist'], bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = kdmacdbool(stock_code, start_date, end_date)
         
         return Response({
             'success': True,
@@ -286,9 +322,10 @@ class RsiAdxDmiView(APIView):
         print(request.data)
         stock_code = request.data.get('stockCode')
         start_date = request.data.get('startDate')
+        end_date = request.data.get('endDate')
         # stock = yf.download(f"{stock_code}.TW", start=start_date)
         
-        candlestick_data, rsi, adx, plus_di, minus_di = rsiadxdmi(stock_code, start_date)
+        candlestick_data, rsi, adx, plus_di, minus_di = rsiadxdmi(stock_code, start_date, end_date)
         
         return Response({
             'success': True,
@@ -297,4 +334,93 @@ class RsiAdxDmiView(APIView):
             'adx': adx.fillna(-2147483648),
             'plus_di': plus_di.fillna(-2147483648),
             'minus_di': minus_di.fillna(-2147483648)
+        }, status=status.HTTP_200_OK)
+
+
+class EntryExitView(APIView):
+    def post(self, request):
+        print(request.data)
+        stock_code = request.data.get('stockCode')
+        start_date = request.data.get('startDate')
+        end_date = request.data.get('endDate')
+        strategy = request.data.get('strategy')
+        if strategy == 'ceil_floor':
+            ma, ceiling_price, floor_price, candlestick_data, ceiling_signals, floor_signals = entry_exit(stock_code, start_date, end_date, strategy)
+            return Response({
+                'success': True,
+                'candlestick_data': candlestick_data,
+                'ma': ma.fillna(-2147483648),
+                'ceiling_price': ceiling_price.fillna(-2147483648),
+                'floor_price': floor_price.fillna(-2147483648),
+                'ceiling_signals': ceiling_signals,
+                'floor_signals': floor_signals
+            }, status=status.HTTP_200_OK)
+        elif strategy == 'kd':
+            kd = {}
+            candlestick_data, kd['K'], kd['D'] = entry_exit(stock_code, start_date, end_date, strategy)
+            return Response({
+                'success': True,
+                'candlestick_data': candlestick_data,
+                'kd_K': kd['K'].fillna(-2147483648),
+                'kd_D': kd['D'].fillna(-2147483648)
+            }, status=status.HTTP_200_OK)
+        elif strategy == 'macd':
+            macd = {}
+            candlestick_data, macd['MACD'], macd['signal'], macd['hist'] = entry_exit(stock_code, start_date, end_date, strategy)
+            return Response({
+                'success': True,
+                'candlestick_data': candlestick_data,
+                'macd_data': macd['MACD'].fillna(-2147483648),
+                'macd_signal': macd['signal'].fillna(-2147483648),
+                'macd_hist': macd['hist'].fillna(-2147483648)
+            }, status=status.HTTP_200_OK)
+        elif strategy == 'booling':
+            bool = {}
+            candlestick_data, bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = entry_exit(stock_code, start_date, end_date, strategy)
+            return Response({
+                'success': True,
+                'candlestick_data': candlestick_data,
+                'bool_mid': bool['MIDDLEBAND'].fillna(-2147483648),
+                'bool_upper': bool['UPPERBAND'].fillna(-2147483648),
+                'bool_lower': bool['LOWERBAND'].fillna(-2147483648)
+            }, status=status.HTTP_200_OK)
+        elif strategy == 'rsi':
+            candlestick_data, rsi = entry_exit(stock_code, start_date, end_date, strategy)
+            return Response({
+                'success': True,
+                'candlestick_data': candlestick_data,
+                'rsi': rsi.fillna(-2147483648)
+            }, status=status.HTTP_200_OK)
+        elif strategy == 'adx_dmi':
+            candlestick_data, adx, plus_di, minus_di = entry_exit(stock_code, start_date, end_date, strategy)
+            return Response({
+                'success': True,
+                'candlestick_data': candlestick_data,
+                'adx': adx.fillna(-2147483648),
+                'plus_di': plus_di.fillna(-2147483648),
+                'minus_di': minus_di.fillna(-2147483648)
+            }, status=status.HTTP_200_OK)
+        elif strategy == 'kline':
+            pass
+            
+        # return Response({'message': 'Hello, world!'})
+    
+
+class PricingStrategyView(APIView):
+    def post(self, request):
+        print(request.data)
+        stock_code = request.data.get('stockCode')
+        start_date = request.data.get('startDate')
+        end_date = request.data.get('endDate')
+        latest_price, pricing_data, date, heatmap_data, div_expensive, hl_expensive, pb_expensive, pe_expensive = pricing_strategy(stock_code, start_date, end_date)
+        return Response({
+            'success': True,
+            'latest_price': latest_price,
+            'pricing_data': pricing_data,
+            'date': date,
+            'heatmap_data': heatmap_data,
+            'div_expensive': div_expensive,
+            'hl_expensive': hl_expensive,
+            'pb_expensive': pb_expensive,
+            'pe_expensive': pe_expensive
         }, status=status.HTTP_200_OK)

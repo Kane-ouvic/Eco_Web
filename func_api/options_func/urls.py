@@ -14,4 +14,6 @@ urlpatterns = [
     path('ceiling_floor/', views.CeilingFloorView.as_view(), name='ceiling_floor'),
     path('kd_macd_bool/', views.KdMacdBoolView.as_view(), name='kd_macd_bool'),
     path('rsi_adx_dmi/', views.RsiAdxDmiView.as_view(), name='rsi_adx_dmi'),
+    path('pricing_strategy/', views.PricingStrategyView.as_view(), name='pricing_strategy'),
+    path('entry_exit/', views.EntryExitView.as_view(), name='entry_exit'),
 ]

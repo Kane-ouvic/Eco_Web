@@ -89,3 +89,11 @@ def monitor(request):
     user_tracks = UserTracker.objects.filter(user=request.user).order_by('-created_at')
     print(user_tracks)
     return render(request, 'blog/monitor.html', {'user_tracks': user_tracks})
+
+@login_required
+def entry_exit(request):
+    return render(request, 'blog/entry_exit.html')
+
+@login_required
+def pricing_strategy(request):
+    return render(request, 'blog/pricing_strategy.html')
