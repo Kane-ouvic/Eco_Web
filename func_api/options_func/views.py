@@ -23,7 +23,7 @@ from .utils.stock_selection import stock_selection
 from django.http import QueryDict
 from django.utils.dateparse import parse_date
 from django.utils import timezone
-from .models import UserTracker  # 添加這行在文件頂部
+from .models import UserTracker, EntryExitTrack  # 添加這行在文件頂部
 from rest_framework import status        
 from fin import *  # 從指定路徑導入 fin 模組
 from finlab import data, login
@@ -424,3 +424,34 @@ class PricingStrategyView(APIView):
             'pb_expensive': pb_expensive,
             'pe_expensive': pe_expensive
         }, status=status.HTTP_200_OK)
+        
+
+class AddEntryExitTrackView(APIView):
+    def post(self, request):
+        try:
+            # 從請求中獲取數據
+            print(f"Received data: {request.data}")
+            method = request.data.get('strategy', 'ceil_floor')  # 默認為 'ceil_floor'
+            stock_code = request.data.get('stockCode')
+            start_date = parse_date(request.data.get('startDate'))
+            end_date = parse_date(request.data.get('endDate'))
+            track_date = timezone.now()
+
+            # 檢查必要的字段否存在
+            if not all([stock_code, start_date, end_date]):
+                return Response({'success': False, 'error': '缺少必要的字段'})
+
+            # 創建新的 EntryExitTrack 記錄
+            tracker = EntryExitTrack.objects.create(
+                user=request.user,
+                method=method,
+                stock_code=stock_code,
+                start_date=start_date,
+                end_date=end_date,
+                track_date=track_date
+            )
+            print(f"Successfully created tracker: {tracker.id}")
+            return Response({'success': True, 'message': '成功添加追蹤'})
+        except Exception as e:
+            print(f"Error adding track: {str(e)}")
+            return Response({'success': False, 'error': str(e)})
