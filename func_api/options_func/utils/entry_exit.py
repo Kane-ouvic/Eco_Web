@@ -99,7 +99,6 @@ def entry_exit(stock_code, start_date, end_date, strategy):
                 print(f"處理資料時發生錯誤: {e}")
                 print(f"問題資料: timestamp={i}, row={row}")
                 continue
-        print("boollllllllllllllllll")
         return candlestick_data, bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND']
     
     

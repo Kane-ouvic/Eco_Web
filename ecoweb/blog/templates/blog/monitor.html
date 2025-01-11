@@ -41,6 +41,42 @@
             </tr>
             {% endfor %}
         </tbody>
+       
+    
+    
+        
+    </table>
+    <tr>
+        <td colspan="20" class="text-center">
+            <hr>
+        </td>
+    </tr>
+    <table id="entryExitTable" class="table table-striped">
+        <thead></thead>
+            <tr>
+                <th>Strategy</th>
+                <th>Stock Code</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Tracking Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for track in entry_exit_tracks %}
+            <tr>
+                <td id="method-{{ track.id }}">{{ track.method }}</td>
+                <td id="stock1-{{ track.id }}">{{ track.stock_code }}</td>
+                <td id="start_date-{{ track.id }}">{{ track.start_date|date:"Y-m-d" }}</td>
+                <td id="end_date-{{ track.id }}">{{ track.end_date|date:"Y-m-d" }}</td>
+                <td id="created_at-{{ track.id }}">{{ track.created_at|date:"Y-m-d" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="text-center">No tracking records yet</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

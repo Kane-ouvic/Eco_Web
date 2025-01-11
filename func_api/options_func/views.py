@@ -270,11 +270,12 @@ class CeilingFloorView(APIView):
     def post(self, request):
         stock_code = request.data.get('stockCode')
         start_date = request.data.get('startDate')
+        end_date = request.data.get('endDate')
         ma_length = int(request.data.get('maLength'))
         ma_type = request.data.get('maType')
         method = request.data.get('method')
         
-        ma, ceiling_price, floor_price, candlestick_data, ceiling_signals, floor_signals = ceilingfloor(stock_code, start_date, ma_length, ma_type, method)
+        ma, ceiling_price, floor_price, candlestick_data, ceiling_signals, floor_signals = ceilingfloor(stock_code, start_date, end_date, ma_length, ma_type, method)
         
         
         return Response({
@@ -294,6 +295,15 @@ class KdMacdBoolView(APIView):
         stock_code = request.data.get('stockCode')
         start_date = request.data.get('startDate')
         end_date = request.data.get('endDate')
+        fastk_period = int(request.data.get('fastk_period'))
+        slowk_period = int(request.data.get('slowk_period'))
+        slowd_period = int(request.data.get('slowd_period'))
+        fastperiod = int(request.data.get('fastperiod'))
+        slowperiod = int(request.data.get('slowperiod'))
+        signalperiod = int(request.data.get('signalperiod'))
+        timeperiod = int(request.data.get('timeperiod'))
+        nbdevup = int(request.data.get('nbdevup'))
+        nbdevdn = int(request.data.get('nbdevdn'))
         print(stock_code, start_date, end_date)
         # stock = yf.download(f"{stock_code}.TW", start=start_date)
         
@@ -301,7 +311,7 @@ class KdMacdBoolView(APIView):
         kd = {}
         macd = {}
         bool = {}
-        candlestick_data, kd['K'], kd['D'], macd['MACD'], macd['signal'], macd['hist'], bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = kdmacdbool(stock_code, start_date, end_date)
+        candlestick_data, kd['K'], kd['D'], macd['MACD'], macd['signal'], macd['hist'], bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = kdmacdbool(stock_code, start_date, end_date, fastk_period, slowk_period, slowd_period, fastperiod, slowperiod, signalperiod, timeperiod, nbdevup, nbdevdn)
         
         return Response({
             'success': True,
@@ -323,9 +333,11 @@ class RsiAdxDmiView(APIView):
         stock_code = request.data.get('stockCode')
         start_date = request.data.get('startDate')
         end_date = request.data.get('endDate')
+        rsi_period = int(request.data.get('rsi_period'))
+        adx_period = int(request.data.get('adx_period'))
         # stock = yf.download(f"{stock_code}.TW", start=start_date)
         
-        candlestick_data, rsi, adx, plus_di, minus_di = rsiadxdmi(stock_code, start_date, end_date)
+        candlestick_data, rsi, adx, plus_di, minus_di = rsiadxdmi(stock_code, start_date, end_date, rsi_period, adx_period)
         
         return Response({
             'success': True,

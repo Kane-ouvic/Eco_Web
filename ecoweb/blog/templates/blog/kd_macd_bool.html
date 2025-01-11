@@ -20,6 +20,54 @@
                         <label for="endDate">結束日期:</label>
                         <input type="date" class="form-control mb-2" id="endDate" required>
                     </div>
+                    
+
+                    <div class="row">
+                        <div>KD參數</div>
+                    <div class="col-md-5">
+                        <label for="fastk_period">Fast K 週期:</label>
+                        <input type="number" class="form-control mb-2" id="fastk_period" placeholder="請輸入 Fast K 週期" value="9" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="slowk_period">Slow K 週期:</label>
+                        <input type="number" class="form-control mb-2" id="slowk_period" placeholder="請輸入 Slow K 週期" value="3" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="slowd_period">Slow D 週期:</label>
+                        <input type="number" class="form-control mb-2" id="slowd_period" placeholder="請輸入 Slow D 週期" value="3" required>
+                    </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div>MACD參數</div>
+                        <div class="col-md-5">
+                            <label for="fastperiod">快速週期:</label>
+                            <input type="number" class="form-control mb-2" id="fastperiod" placeholder="請輸入快速週期" value="12" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="slowperiod">慢速週期:</label>
+                            <input type="number" class="form-control mb-2" id="slowperiod" placeholder="請輸入慢速週期" value="26" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="signalperiod">訊號週期:</label>
+                            <input type="number" class="form-control mb-2" id="signalperiod" placeholder="請輸入訊號週期" value="9" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>布林通道參數</div>
+                        <div class="col-md-5">
+                            <label for="timeperiod">時間週期:</label>
+                            <input type="number" class="form-control mb-2" id="timeperiod" placeholder="請輸入時間週期" value="5" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="nbdevup">上軌標準差倍數:</label>
+                            <input type="number" class="form-control mb-2" id="nbdevup" placeholder="請輸入上軌標準差倍數" value="2" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="nbdevdn">下軌標準差倍數:</label>
+                            <input type="number" class="form-control mb-2" id="nbdevdn" placeholder="請輸入下軌標準差倍數" value="2" required>
+                        </div>
+                    </div>
                     <div class="col-md-2">
                         <button type="button" id="search-button" class="btn btn-primary mb-2">搜尋</button>
                     </div>

@@ -7,13 +7,22 @@ document.getElementById('search-button').addEventListener('click', function () {
     const stockCode = document.getElementById('stockCode').value;
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
+    const fastk_period = document.getElementById('fastk_period').value;
+    const slowk_period = document.getElementById('slowk_period').value;
+    const slowd_period = document.getElementById('slowd_period').value;
+    const fastperiod = document.getElementById('fastperiod').value;
+    const slowperiod = document.getElementById('slowperiod').value;
+    const signalperiod = document.getElementById('signalperiod').value;
+    const timeperiod = document.getElementById('timeperiod').value;
+    const nbdevup = document.getElementById('nbdevup').value;
+    const nbdevdn = document.getElementById('nbdevdn').value;
     fetch(`${API_BASE_URL}/api/kd_macd_bool/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': '{{ csrf_token }}'  // 確保Django的CSRF保護
         },
-        body: JSON.stringify({ stockCode: stockCode, startDate: startDate, endDate: endDate })
+        body: JSON.stringify({ stockCode: stockCode, startDate: startDate, endDate: endDate, fastk_period: fastk_period, slowk_period: slowk_period, slowd_period: slowd_period, fastperiod: fastperiod, slowperiod: slowperiod, signalperiod: signalperiod, timeperiod: timeperiod, nbdevup: nbdevup, nbdevdn: nbdevdn })
     })
         .then(response => response.json())
         .then(data => {

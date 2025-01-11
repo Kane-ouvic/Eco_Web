@@ -17,3 +17,16 @@ class UserTracker(models.Model):
 
     def __str__(self):
         return f"{self.user.username}: {self.method} - {self.stock1}-{self.stock2} ({self.start_date} to {self.end_date})"
+
+class EntryExitTrack(models.Model):
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='entry_exit_tracks')
+    method = models.CharField(max_length=20, default='ceil_floor')  # 交易策略方法
+    stock_code = models.CharField(max_length=10)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    track_date = models.DateTimeField(default=timezone.now)  # 建立的日期
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.user.username}: {self.method} - {self.stock_code} ({self.start_date} to {self.end_date})"

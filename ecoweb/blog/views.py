@@ -16,7 +16,7 @@ from datetime import datetime, date, timedelta
 import logging
 import re
 from django.core.serializers.json import DjangoJSONEncoder
-from options_func.models import UserTracker
+from options_func.models import UserTracker, EntryExitTrack
 
 @login_required
 def calculate_strategy(request):
@@ -87,8 +87,9 @@ def logout_view(request):
 @login_required
 def monitor(request):
     user_tracks = UserTracker.objects.filter(user=request.user).order_by('-created_at')
+    entry_exit_tracks = EntryExitTrack.objects.filter(user=request.user).order_by('-created_at')
     print(user_tracks)
-    return render(request, 'blog/monitor.html', {'user_tracks': user_tracks})
+    return render(request, 'blog/monitor.html', {'user_tracks': user_tracks, 'entry_exit_tracks': entry_exit_tracks})
 
 @login_required
 def entry_exit(request):

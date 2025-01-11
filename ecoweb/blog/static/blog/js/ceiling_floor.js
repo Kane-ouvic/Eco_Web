@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
 document.getElementById('search-button').addEventListener('click', function () {
     const stockCode = document.getElementById('stockCode').value;
     const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
     const maLength = document.getElementById('maLength').value;
     const maType = document.getElementById('maType').value;
     const method = document.getElementById('method').value;
@@ -15,7 +16,7 @@ document.getElementById('search-button').addEventListener('click', function () {
             'Content-Type': 'application/json',
             'X-CSRFToken': '{{ csrf_token }}'  // 確保Django的CSRF保護
         },
-        body: JSON.stringify({ stockCode: stockCode, startDate: startDate, maLength: maLength, maType: maType, method: method })
+        body: JSON.stringify({ stockCode: stockCode, startDate: startDate, endDate: endDate, maLength: maLength, maType: maType, method: method })
     })
         .then(response => response.json())
         .then(data => {

@@ -7,13 +7,15 @@ document.getElementById('search-button').addEventListener('click', function () {
     const stockCode = document.getElementById('stockCode').value;
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
+    const rsi_period = document.getElementById('rsi_period').value;
+    const adx_period = document.getElementById('adx_period').value;
     fetch(`${API_BASE_URL}/api/rsi_adx_dmi/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': '{{ csrf_token }}'  // 確保Django的CSRF保護
         },
-        body: JSON.stringify({ stockCode: stockCode, startDate: startDate, endDate: endDate })
+        body: JSON.stringify({ stockCode: stockCode, startDate: startDate, endDate: endDate, rsi_period: rsi_period, adx_period: adx_period })
     })
         .then(response => response.json())
         .then(data => {

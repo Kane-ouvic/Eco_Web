@@ -1,19 +1,19 @@
 import yfinance as yf
 import talib
 
-def kdmacdbool(stock_code, start_date, end_date):
+def kdmacdbool(stock_code, start_date, end_date, fastk_period, slowk_period, slowd_period, fastperiod, slowperiod, signalperiod, timeperiod, nbdevup, nbdevdn):
     stock = yf.download(f"{stock_code}.TW", start=start_date, end=end_date)
 
-    print(stock)
+    # print(stock)
         
     # 初始化 macd 字典
     kd = {}
     macd = {}
     bool = {}
     # 計算 MACD 指標
-    kd['K'], kd['D'] = talib.STOCH(stock['High'], stock['Low'], stock['Close'], fastk_period=9, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
-    macd['MACD'], macd['signal'], macd['hist'] = talib.MACD(stock['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
-    bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = talib.BBANDS(stock['Close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
+    kd['K'], kd['D'] = talib.STOCH(stock['High'], stock['Low'], stock['Close'], fastk_period=fastk_period, slowk_period=slowk_period, slowk_matype=0, slowd_period=slowd_period, slowd_matype=0)
+    macd['MACD'], macd['signal'], macd['hist'] = talib.MACD(stock['Close'], fastperiod=fastperiod, slowperiod=slowperiod, signalperiod=signalperiod)
+    bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = talib.BBANDS(stock['Close'], timeperiod=timeperiod, nbdevup=nbdevup, nbdevdn=nbdevdn, matype=0)
          
         
     candlestick_data = []

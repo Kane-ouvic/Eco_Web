@@ -20,7 +20,7 @@
                         <label for="endDate" name="endDate">結束日期:</label>
                         <input type="date" class="form-control mb-2" id="endDate" name="endDate" required>
                     </div>
-                    <div class="col-md-5">
+                    <!-- <div class="col-md-5">
                         <label for="strategy" name="strategy">選擇指標方法:</label>
                         <select class="form-control mb-2" id="strategy" name="strategy" required>
                             <option value="ceil_floor">天花板地板</option>
@@ -31,14 +31,106 @@
                             <option value="adx_dmi">ADX/DMI</option>
                             <option value="kline">K線型態</option>
                         </select>
+                    </div> -->
+                    <div class="row">
+                        <div>天花板地板線參數</div>
+                        <div class="col-md-5">
+                            <label for="maLength">MA長度:</label>
+                            <input type="number" class="form-control mb-2" id="maLength" value="20" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="maType">MA類型:</label>
+                            <select class="form-control mb-2" id="maType" required>
+                                <option value="sma">SMA</option>
+                                <option value="wma">WMA</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="method">方法:</label>
+                            <select class="form-control mb-2" id="method" required>
+                                <option value="method1">方法一</option>
+                                <option value="method2">方法二</option>
+                                <option value="method3">方法三</option>
+                            </select>
+                        </div>
                     </div>
+
+                    <div class="row">
+                        <div>KD參數</div>
+                    <div class="col-md-5">
+                        <label for="fastk_period">Fast K 週期:</label>
+                        <input type="number" class="form-control mb-2" id="fastk_period" placeholder="請輸入 Fast K 週期" value="9" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="slowk_period">Slow K 週期:</label>
+                        <input type="number" class="form-control mb-2" id="slowk_period" placeholder="請輸入 Slow K 週期" value="3" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="slowd_period">Slow D 週期:</label>
+                        <input type="number" class="form-control mb-2" id="slowd_period" placeholder="請輸入 Slow D 週期" value="3" required>
+                    </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div>MACD參數</div>
+                        <div class="col-md-5">
+                            <label for="fastperiod">快速週期:</label>
+                            <input type="number" class="form-control mb-2" id="fastperiod" placeholder="請輸入快速週期" value="12" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="slowperiod">慢速週期:</label>
+                            <input type="number" class="form-control mb-2" id="slowperiod" placeholder="請輸入慢速週期" value="26" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="signalperiod">訊號週期:</label>
+                            <input type="number" class="form-control mb-2" id="signalperiod" placeholder="請輸入訊號週期" value="9" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>布林通道參數</div>
+                        <div class="col-md-5">
+                            <label for="timeperiod">時間週期:</label>
+                            <input type="number" class="form-control mb-2" id="timeperiod" placeholder="請輸入時間週期" value="5" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="nbdevup">上軌標準差倍數:</label>
+                            <input type="number" class="form-control mb-2" id="nbdevup" placeholder="請輸入上軌標準差倍數" value="2" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="nbdevdn">下軌標準差倍數:</label>
+                            <input type="number" class="form-control mb-2" id="nbdevdn" placeholder="請輸入下軌標準差倍數" value="2" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        
+                        <div class="col-md-5">
+                            <div>RSI參數</div>
+                            <label for="rsi_period">週期:</label>
+                            <input type="number" class="form-control mb-2" id="rsi_period" placeholder="請輸入 RSI 週期" value="14" required>
+                        </div>
+                            
+                        <div class="col-md-5">
+                            <div>ADX/DMI參數</div>
+                            <label for="adx_period">週期:</label>
+                            <input type="number" class="form-control mb-2" id="adx_period" placeholder="請輸入 ADX/DMI 週期" value="14" required>
+                        </div>
+                    </div>
+
                     <div class="col-md-2 d-flex justify-content-between">
                         <button type="button" id="search-button" class="btn btn-primary mb-2 me-2" style="white-space: nowrap;">搜尋</button>
                         <button type="button" id="add-track-btn" class="btn btn-success mb-2" style="white-space: nowrap;">Add Track</button>
                     </div>
                 </div>
             </form>
-            <div id="chart" class="mt-3"></div>
+            <!-- <div id="chart" class="mt-3"></div> -->
+            <div id="ceiling_floor-chart" class="mt-3"></div>
+            <div id="kd-chart" class="mt-3"></div>
+            <div id="macd-chart" class="mt-3"></div>
+            <div id="bool-chart" class="mt-3"></div>
+            <div id="rsi-chart" class="mt-3"></div>
+            <div id="adx-dmi-chart" class="mt-3"></div>
+            
         </div>
     </div>
 </div>

@@ -2,10 +2,10 @@ import yfinance as yf
 import talib
 import numpy as np
 
-def ceilingfloor(stock_code, start_date, ma_length, ma_type, method):
+def ceilingfloor(stock_code, start_date, end_date, ma_length, ma_type, method):
 
         
-    stock = yf.download(f"{stock_code}.TW", start=start_date)
+    stock = yf.download(f"{stock_code}.TW", start=start_date, end=end_date)
         
     if ma_type == 'sma':
         ma = talib.SMA(stock['Close'], timeperiod=ma_length)
