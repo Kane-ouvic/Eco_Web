@@ -1,8 +1,29 @@
 // 新增 Add Track 按鈕的點擊事件處理
 $(document).ready(function () {
     $('#add-track-btn').on('click', function () {
-        var formData = $('#strategyForm').serialize();
+        // var formData = $('#strategyForm').serialize();
         // formData += '&method=' + "Distance";  // 假設您有一個 id 為 'method' 的選擇框
+        var formData = {
+            stockCode: $('#stockCode').val(),
+            startDate: $('#startDate').val(),
+            endDate: $('#endDate').val(),
+            maLength: $('#maLength').val(),
+            maType: $('#maType').val(),
+            method: $('#method').val(),
+
+            fastk_period: $('#fastk_period').val(),
+            slowk_period: $('#slowk_period').val(),
+            slowd_period: $('#slowd_period').val(),
+            fastperiod: $('#fastperiod').val(),
+            slowperiod: $('#slowperiod').val(),
+            signalperiod: $('#signalperiod').val(),
+            timeperiod: $('#timeperiod').val(),
+            nbdevup: $('#nbdevup').val(),
+            nbdevdn: $('#nbdevdn').val(),
+
+            rsi_period: $('#rsi_period').val(),
+            adx_period: $('#adx_period').val()
+        };
         console.log(formData);
         $.ajax({
             url: `${API_BASE_URL}/api/add_entry_exit_track/`,

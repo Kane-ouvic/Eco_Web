@@ -20,6 +20,25 @@ $(document).ready(function () {
         }
     });
 
+    // $('#entryExitTable').DataTable({
+    //     "pageLength": 10,
+    //     "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "All"]],
+    //     "language": {
+    //         "lengthMenu": "Show _MENU_ entries",
+    //         "zeroRecords": "No matching records found",
+    //         "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+    //         "infoEmpty": "Showing 0 to 0 of 0 entries",
+    //         "infoFiltered": "(filtered from _MAX_ total entries)",
+    //         "search": "Search:",
+    //         "paginate": {
+    //             "first": "First",
+    //             "last": "Last",
+    //             "next": "Next",
+    //             "previous": "Previous"
+    //         }
+    //     }
+    // });
+
     // 取消追蹤按鈕點擊事件
     function setupUntrackButtons() {
         $('.untrack-btn').click(function () {

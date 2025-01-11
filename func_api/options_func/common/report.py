@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 # 添加項目根目錄到 Python 路徑
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 sys.path.append(project_root)
+file_path = "/home/ouvic/Eco_Web/user_tracker_data"
 
 # 載入 .env 文件
 load_dotenv(os.path.join(project_root, '.env'))
@@ -69,7 +70,7 @@ def generate_and_send_report():
         df = pd.DataFrame(user_info['追蹤標的'])
         
         # 生成 Excel 文件
-        file_name = f"user_trackers_{user_info['使用者']}_{current_time}.xlsx"
+        file_name = os.path.join(file_path, f"user_trackers_{user_info['使用者']}_{current_time}.xlsx")
         df.to_excel(file_name, index=False)
         
         # 發送郵件

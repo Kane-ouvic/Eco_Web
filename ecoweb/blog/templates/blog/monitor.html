@@ -51,10 +51,11 @@
             <hr>
         </td>
     </tr>
+
+    
     <table id="entryExitTable" class="table table-striped">
-        <thead></thead>
+        <thead>
             <tr>
-                <th>Strategy</th>
                 <th>Stock Code</th>
                 <th>Start Date</th>
                 <th>End Date</th>
@@ -65,11 +66,14 @@
         <tbody>
             {% for track in entry_exit_tracks %}
             <tr>
-                <td id="method-{{ track.id }}">{{ track.method }}</td>
                 <td id="stock1-{{ track.id }}">{{ track.stock_code }}</td>
                 <td id="start_date-{{ track.id }}">{{ track.start_date|date:"Y-m-d" }}</td>
                 <td id="end_date-{{ track.id }}">{{ track.end_date|date:"Y-m-d" }}</td>
                 <td id="created_at-{{ track.id }}">{{ track.created_at|date:"Y-m-d" }}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm untrack-btn2"  data-track-id="{{ track.id }}">Untrack</button>
+                    <button class="btn btn-success btn-sm results-btn2"  data-track-id="{{ track.id }}">Results</button>
+                </td>
             </tr>
             {% empty %}
             <tr>
@@ -84,5 +88,6 @@
 <script src="https://code.highcharts.com/stock/highstock.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script src="{% static 'blog/js/monitor.js' %}"></script>
+<script src="{% static 'blog/js/monitor2.js' %}"></script>
 
 {% endblock %}

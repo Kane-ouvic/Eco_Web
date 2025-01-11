@@ -355,65 +355,108 @@ class EntryExitView(APIView):
         stock_code = request.data.get('stockCode')
         start_date = request.data.get('startDate')
         end_date = request.data.get('endDate')
-        strategy = request.data.get('strategy')
-        if strategy == 'ceil_floor':
-            ma, ceiling_price, floor_price, candlestick_data, ceiling_signals, floor_signals = entry_exit(stock_code, start_date, end_date, strategy)
-            return Response({
-                'success': True,
-                'candlestick_data': candlestick_data,
-                'ma': ma.fillna(-2147483648),
-                'ceiling_price': ceiling_price.fillna(-2147483648),
-                'floor_price': floor_price.fillna(-2147483648),
-                'ceiling_signals': ceiling_signals,
-                'floor_signals': floor_signals
-            }, status=status.HTTP_200_OK)
-        elif strategy == 'kd':
-            kd = {}
-            candlestick_data, kd['K'], kd['D'] = entry_exit(stock_code, start_date, end_date, strategy)
-            return Response({
-                'success': True,
-                'candlestick_data': candlestick_data,
-                'kd_K': kd['K'].fillna(-2147483648),
-                'kd_D': kd['D'].fillna(-2147483648)
-            }, status=status.HTTP_200_OK)
-        elif strategy == 'macd':
-            macd = {}
-            candlestick_data, macd['MACD'], macd['signal'], macd['hist'] = entry_exit(stock_code, start_date, end_date, strategy)
-            return Response({
-                'success': True,
-                'candlestick_data': candlestick_data,
-                'macd_data': macd['MACD'].fillna(-2147483648),
-                'macd_signal': macd['signal'].fillna(-2147483648),
-                'macd_hist': macd['hist'].fillna(-2147483648)
-            }, status=status.HTTP_200_OK)
-        elif strategy == 'booling':
-            bool = {}
-            candlestick_data, bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = entry_exit(stock_code, start_date, end_date, strategy)
-            return Response({
-                'success': True,
-                'candlestick_data': candlestick_data,
-                'bool_mid': bool['MIDDLEBAND'].fillna(-2147483648),
-                'bool_upper': bool['UPPERBAND'].fillna(-2147483648),
-                'bool_lower': bool['LOWERBAND'].fillna(-2147483648)
-            }, status=status.HTTP_200_OK)
-        elif strategy == 'rsi':
-            candlestick_data, rsi = entry_exit(stock_code, start_date, end_date, strategy)
-            return Response({
-                'success': True,
-                'candlestick_data': candlestick_data,
-                'rsi': rsi.fillna(-2147483648)
-            }, status=status.HTTP_200_OK)
-        elif strategy == 'adx_dmi':
-            candlestick_data, adx, plus_di, minus_di = entry_exit(stock_code, start_date, end_date, strategy)
-            return Response({
-                'success': True,
-                'candlestick_data': candlestick_data,
-                'adx': adx.fillna(-2147483648),
-                'plus_di': plus_di.fillna(-2147483648),
-                'minus_di': minus_di.fillna(-2147483648)
-            }, status=status.HTTP_200_OK)
-        elif strategy == 'kline':
-            pass
+        # strategy = request.data.get('strategy')
+        ma_length = int(request.data.get('maLength'))
+        ma_type = request.data.get('maType')
+        method = request.data.get('method')
+        fastk_period = int(request.data.get('fastk_period'))
+        slowk_period = int(request.data.get('slowk_period'))
+        slowd_period = int(request.data.get('slowd_period'))
+        fastperiod = int(request.data.get('fastperiod'))
+        slowperiod = int(request.data.get('slowperiod'))
+        signalperiod = int(request.data.get('signalperiod'))
+        timeperiod = int(request.data.get('timeperiod'))
+        nbdevup = int(request.data.get('nbdevup'))
+        nbdevdn = int(request.data.get('nbdevdn'))
+        rsi_period = int(request.data.get('rsi_period'))
+        adx_period = int(request.data.get('adx_period'))
+        
+        ma, ceiling_price, floor_price, candlestick_data, ceiling_signals, floor_signals = ceilingfloor(stock_code, start_date, end_date, ma_length, ma_type, method)
+        kd = {}
+        macd = {}
+        bool = {}
+        candlestick_data, kd['K'], kd['D'], macd['MACD'], macd['signal'], macd['hist'], bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = kdmacdbool(stock_code, start_date, end_date, fastk_period, slowk_period, slowd_period, fastperiod, slowperiod, signalperiod, timeperiod, nbdevup, nbdevdn)
+        candlestick_data, rsi, adx, plus_di, minus_di = rsiadxdmi(stock_code, start_date, end_date, rsi_period, adx_period)
+        
+        return Response({
+            'success': True,
+            'candlestick_data': candlestick_data,
+            'ma': ma.fillna(-2147483648),
+            'ceiling_price': ceiling_price.fillna(-2147483648),
+            'floor_price': floor_price.fillna(-2147483648),
+            'ceiling_signals': ceiling_signals,
+            'floor_signals': floor_signals,
+            'kd_K': kd['K'].fillna(-2147483648),
+            'kd_D': kd['D'].fillna(-2147483648),
+            'macd_data': macd['MACD'].fillna(-2147483648),
+            'macd_signal': macd['signal'].fillna(-2147483648),
+            'macd_hist': macd['hist'].fillna(-2147483648),
+            'bool_mid': bool['MIDDLEBAND'].fillna(-2147483648),
+            'bool_upper': bool['UPPERBAND'].fillna(-2147483648),
+            'bool_lower': bool['LOWERBAND'].fillna(-2147483648),
+            'rsi': rsi.fillna(-2147483648),
+            'adx': adx.fillna(-2147483648),
+            'plus_di': plus_di.fillna(-2147483648),
+            'minus_di': minus_di.fillna(-2147483648)
+        }, status=status.HTTP_200_OK)
+        # if strategy == 'ceil_floor':
+        #     ma, ceiling_price, floor_price, candlestick_data, ceiling_signals, floor_signals = entry_exit(stock_code, start_date, end_date, strategy)
+        #     return Response({
+        #         'success': True,
+        #         'candlestick_data': candlestick_data,
+        #         'ma': ma.fillna(-2147483648),
+        #         'ceiling_price': ceiling_price.fillna(-2147483648),
+        #         'floor_price': floor_price.fillna(-2147483648),
+        #         'ceiling_signals': ceiling_signals,
+        #         'floor_signals': floor_signals
+        #     }, status=status.HTTP_200_OK)
+        # elif strategy == 'kd':
+        #     kd = {}
+        #     candlestick_data, kd['K'], kd['D'] = entry_exit(stock_code, start_date, end_date, strategy)
+        #     return Response({
+        #         'success': True,
+        #         'candlestick_data': candlestick_data,
+        #         'kd_K': kd['K'].fillna(-2147483648),
+        #         'kd_D': kd['D'].fillna(-2147483648)
+        #     }, status=status.HTTP_200_OK)
+        # elif strategy == 'macd':
+        #     macd = {}
+        #     candlestick_data, macd['MACD'], macd['signal'], macd['hist'] = entry_exit(stock_code, start_date, end_date, strategy)
+        #     return Response({
+        #         'success': True,
+        #         'candlestick_data': candlestick_data,
+        #         'macd_data': macd['MACD'].fillna(-2147483648),
+        #         'macd_signal': macd['signal'].fillna(-2147483648),
+        #         'macd_hist': macd['hist'].fillna(-2147483648)
+        #     }, status=status.HTTP_200_OK)
+        # elif strategy == 'booling':
+        #     bool = {}
+        #     candlestick_data, bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = entry_exit(stock_code, start_date, end_date, strategy)
+        #     return Response({
+        #         'success': True,
+        #         'candlestick_data': candlestick_data,
+        #         'bool_mid': bool['MIDDLEBAND'].fillna(-2147483648),
+        #         'bool_upper': bool['UPPERBAND'].fillna(-2147483648),
+        #         'bool_lower': bool['LOWERBAND'].fillna(-2147483648)
+        #     }, status=status.HTTP_200_OK)
+        # elif strategy == 'rsi':
+        #     candlestick_data, rsi = entry_exit(stock_code, start_date, end_date, strategy)
+        #     return Response({
+        #         'success': True,
+        #         'candlestick_data': candlestick_data,
+        #         'rsi': rsi.fillna(-2147483648)
+        #     }, status=status.HTTP_200_OK)
+        # elif strategy == 'adx_dmi':
+        #     candlestick_data, adx, plus_di, minus_di = entry_exit(stock_code, start_date, end_date, strategy)
+        #     return Response({
+        #         'success': True,
+        #         'candlestick_data': candlestick_data,
+        #         'adx': adx.fillna(-2147483648),
+        #         'plus_di': plus_di.fillna(-2147483648),
+        #         'minus_di': minus_di.fillna(-2147483648)
+        #     }, status=status.HTTP_200_OK)
+        # elif strategy == 'kline':
+        #     pass
             
         # return Response({'message': 'Hello, world!'})
     
@@ -443,10 +486,30 @@ class AddEntryExitTrackView(APIView):
         try:
             # 從請求中獲取數據
             print(f"Received data: {request.data}")
-            method = request.data.get('strategy', 'ceil_floor')  # 默認為 'ceil_floor'
+            
             stock_code = request.data.get('stockCode')
             start_date = parse_date(request.data.get('startDate'))
             end_date = parse_date(request.data.get('endDate'))
+            
+            ma_length = int(request.data.get('maLength'))
+            ma_type = request.data.get('maType')
+            method = request.data.get('method')
+            
+            fastk_period = int(request.data.get('fastk_period'))
+            slowk_period = int(request.data.get('slowk_period'))
+            slowd_period = int(request.data.get('slowd_period'))
+            
+            fastperiod = int(request.data.get('fastperiod'))
+            slowperiod = int(request.data.get('slowperiod'))
+            signalperiod = int(request.data.get('signalperiod'))
+            
+            timeperiod = int(request.data.get('timeperiod'))
+            nbdevup = int(request.data.get('nbdevup'))
+            nbdevdn = int(request.data.get('nbdevdn'))
+            
+            rsi_period = int(request.data.get('rsi_period'))
+            adx_period = int(request.data.get('adx_period'))
+            
             track_date = timezone.now()
 
             # 檢查必要的字段否存在
@@ -456,10 +519,23 @@ class AddEntryExitTrackView(APIView):
             # 創建新的 EntryExitTrack 記錄
             tracker = EntryExitTrack.objects.create(
                 user=request.user,
-                method=method,
                 stock_code=stock_code,
                 start_date=start_date,
                 end_date=end_date,
+                method=method,
+                ma_length=ma_length,
+                ma_type=ma_type,
+                fastk_period=fastk_period,
+                slowk_period=slowk_period,
+                slowd_period=slowd_period,
+                fastperiod=fastperiod,
+                slowperiod=slowperiod,
+                signalperiod=signalperiod,
+                timeperiod=timeperiod,
+                nbdevup=nbdevup,
+                nbdevdn=nbdevdn,
+                rsi_period=rsi_period,
+                adx_period=adx_period,
                 track_date=track_date
             )
             print(f"Successfully created tracker: {tracker.id}")
@@ -467,3 +543,26 @@ class AddEntryExitTrackView(APIView):
         except Exception as e:
             print(f"Error adding track: {str(e)}")
             return Response({'success': False, 'error': str(e)})
+
+    def delete(self, request):
+        print("Cookies:", request.COOKIES)  # 查看共享的 Cookie 是否正確
+        print("Session ID:", request.COOKIES.get('shared_sessionid'))  # 檢查 Session ID
+        print("User:", request.user)  # 檢查是否正確辨識用戶
+        # print(session_key)
+        try:
+            track_id = request.data.get('track_id')
+            
+            if not track_id:
+                return Response({'success': False, 'error': '未提供追蹤 ID'}, status=status.HTTP_400_BAD_REQUEST)
+
+            track = EntryExitTrack.objects.filter(id=track_id, user=request.user).first()
+            # print(track)
+            if not track:
+                return Response({'success': False, 'error': '找不到指定的追蹤記錄或您沒有權限刪除此記錄'}, status=status.HTTP_404_NOT_FOUND)
+
+            track.delete()
+            print(f"User {request.user.username} successfully untracked record {track_id}")
+            return Response({'success': True, 'message': '成功取消追蹤'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"Error untracking: {str(e)}")
+            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -1,7 +1,7 @@
 $(document).ready(function () {
     const API_BASE_URL = 'http://web.nightcover.com.tw:55556';
     // 初始化 DataTable
-    $('#trackTable').DataTable({
+    $('#entryExitTable').DataTable({
         "pageLength": 10,
         "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "All"]],
         "language": {
@@ -21,18 +21,18 @@ $(document).ready(function () {
     });
 
     // 取消追蹤按鈕點擊事件
-    function setupUntrackButtons() {
-        $('.untrack-btn').click(function () {
+    function setupUntrackButtons2() {
+        $('.untrack-btn2').click(function () {
             var trackId = $(this).data('track-id');
             if (confirm('Are you sure you want to untrack?')) {
-                untrackRecord(trackId);
+                untrackRecord2(trackId);
             }
         });
     }
 
-    function untrackRecord(trackId) {
+    function untrackRecord2(trackId) {
         $.ajax({
-            url: `${API_BASE_URL}/api/add_track/`,  // 使用與添加追蹤相同的 URL
+            url: `${API_BASE_URL}/api/add_entry_exit_track/`,  // 使用與添加追蹤相同的 URL
             type: 'DELETE',
             data: JSON.stringify({ track_id: trackId }),
             contentType: 'application/json',
@@ -59,7 +59,7 @@ $(document).ready(function () {
 
     // 結果按鈕點擊事件
     function setupResultButtons() {
-        $('.results-btn').click(function () {
+        $('#results-btn').click(function () {
             var trackId = $(this).data('track-id');
             showResults(trackId);
         });
@@ -348,6 +348,6 @@ $(document).ready(function () {
         return cookieValue;
     }
 
-    setupUntrackButtons();
+    setupUntrackButtons2();
     setupResultButtons();
 });
