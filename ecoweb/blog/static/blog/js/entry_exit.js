@@ -57,7 +57,14 @@ document.getElementById('search-button').addEventListener('click', function () {
                     rsi: data.rsi,
                     adx: data.adx,
                     plus_di: data.plus_di,
-                    minus_di: data.minus_di
+                    minus_di: data.minus_di,
+                    ceilingfloor_signals: data.ceilingfloor_signals,
+                    kd_signals: data.kd_signals,
+                    macd_signals: data.macd_signals,
+                    bool_signals: data.bool_signals,
+                    rsi_signals: data.rsi_signals,
+                    adx_signals: data.adx_signals,
+                    kline_patterns: data.kline_patterns
                 };
                 // if (strategy === 'ceil_floor') {
                 //     chartData = {
@@ -260,22 +267,21 @@ function renderChart(data) {
                 yAxis: 1
             },
             {
-                name: '突破天花板訊號',
-                type: 'scatter',
-                data: data.ceiling_signals,
-                color: '#000000',
-                marker: {
-                    symbol: 'triangle-down'
-                }
-            },
-            {
-                name: '突破地板訊號',
-                type: 'scatter',
-                data: data.floor_signals,
-                color: '#000000',
-                marker: {
-                    symbol: 'triangle'
-                }
+                name: '天花板地板進出場訊號',
+                data: data.ceilingfloor_signals.map(signal => ({
+                    x: signal[0],
+                    y: signal[1],
+                    action: signal[2],
+                    additionalInfo: signal[3],
+                    marker: {
+                        symbol: signal[2] === 'buy' ? 'triangle' : 'triangle-down',
+                        fillColor: signal[2] === 'buy' ? '#000000' : '#000000'
+                    }
+                })),
+                tooltip: {
+                    pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
+                },
+                type: 'scatter'
             }
         ]
     });
@@ -380,6 +386,23 @@ function renderChart(data) {
                 color: '#00FF00',
                 lineWidth: 2,
                 yAxis: 1
+            },
+            {
+                name: 'KD進出場訊號',
+                data: data.kd_signals.map(signal => ({
+                    x: signal[0],
+                    y: signal[1],
+                    action: signal[2],
+                    additionalInfo: signal[3],
+                    marker: {
+                        symbol: signal[2] === 'buy' ? 'triangle' : 'triangle-down',
+                        fillColor: signal[2] === 'buy' ? '#000000' : '#000000'
+                    }
+                })),
+                tooltip: {
+                    pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
+                },
+                type: 'scatter'
             }
         ]
     });
@@ -479,6 +502,23 @@ function renderChart(data) {
                     value === -2147483648 ? null : value
                 ]),
                 yAxis: 1
+            },
+            {
+                name: 'MACD進出場訊號',
+                data: data.macd_signals.map(signal => ({
+                    x: signal[0],
+                    y: signal[1],
+                    action: signal[2],
+                    additionalInfo: signal[3],
+                    marker: {
+                        symbol: signal[2] === 'buy' ? 'triangle' : 'triangle-down',
+                        fillColor: signal[2] === 'buy' ? '#000000' : '#000000'
+                    }
+                })),
+                tooltip: {
+                    pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
+                },
+                type: 'scatter'
             }
         ]
     });
@@ -563,6 +603,23 @@ function renderChart(data) {
                 ]),
                 color: '#FF0000',
                 lineWidth: 1
+            },
+            {
+                name: '布林通道進出場訊號',
+                data: data.bool_signals.map(signal => ({
+                    x: signal[0],
+                    y: signal[1],
+                    action: signal[2],
+                    additionalInfo: signal[3],
+                    marker: {
+                        symbol: signal[2] === 'buy' ? 'triangle' : 'triangle-down',
+                        fillColor: signal[2] === 'buy' ? '#000000' : '#000000'
+                    }
+                })),
+                tooltip: {
+                    pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
+                },
+                type: 'scatter'
             }
         ]
     });
@@ -634,6 +691,23 @@ function renderChart(data) {
                 color: '#0000FF',
                 lineWidth: 2,
                 yAxis: 1
+            },
+            {
+                name: 'RSI進出場訊號',
+                data: data.rsi_signals.map(signal => ({
+                    x: signal[0],
+                    y: signal[1],
+                    action: signal[2],
+                    additionalInfo: signal[3],
+                    marker: {
+                        symbol: signal[2] === 'buy' ? 'triangle' : 'triangle-down',
+                        fillColor: signal[2] === 'buy' ? '#000000' : '#000000'
+                    }
+                })),
+                tooltip: {
+                    pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
+                },
+                type: 'scatter'
             }
         ]
     });
@@ -715,6 +789,123 @@ function renderChart(data) {
                 color: '#FF0000',
                 lineWidth: 2,
                 yAxis: 1
+            },
+            {
+                name: 'ADX進出場訊號',
+                data: data.adx_signals.map(signal => ({
+                    x: signal[0],
+                    y: signal[1],
+                    action: signal[2],
+                    additionalInfo: signal[3],
+                    marker: {
+                        symbol: signal[2] === 'buy' ? 'triangle' : 'triangle-down',
+                        fillColor: signal[2] === 'buy' ? '#000000' : '#000000'
+                    }
+                })),
+                tooltip: {
+                    pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
+                },
+                type: 'scatter'
+            }
+        ]
+    });
+
+
+    Highcharts.stockChart('kline-chart', {
+        chart: {
+            type: 'line',
+            height: 600
+        },
+        title: { text: 'K線型態' },
+        xAxis: {
+            type: 'datetime',
+            title: { text: '時間' },
+            ordinal: false
+        },
+        yAxis: [{
+            title: { text: '價格' },
+            height: '60%',
+            plotLines: [{
+                value: 15,
+                width: 1,
+                color: '#808080'
+            }]
+        }, {
+            title: { text: '漲跌幅度' },
+            top: '65%',
+            height: '35%',
+            offset: 0
+        }],
+        rangeSelector: {
+            enabled: true,
+            selected: 4,
+            inputDateFormat: '%Y-%m-%d',
+            inputEditDateFormat: '%Y-%m-%d',
+            buttonTheme: {
+                width: 60
+            }
+        },
+        navigator: {
+            enabled: true,
+            height: 50
+        },
+        scrollbar: {
+            enabled: true
+        },
+        plotOptions: {
+            line: {
+                marker: {
+                    enabled: false
+                }
+            },
+            column: {
+                negativeColor: '#00FF00',
+                color: '#FF0000'
+            },
+            scatter: {
+                marker: {
+                    symbol: 'triangle',
+                    radius: 5
+                }
+            }
+        },
+        series: [
+            {
+                type: 'candlestick',
+                name: '股價',
+                data: data.candlestick_data,
+                color: '#00FF00',
+                upColor: '#FF0000',
+                lineColor: '#00FF00',
+                upLineColor: '#FF0000'
+            },
+            {
+                type: 'column',
+                name: '漲跌幅',
+                data: data.candlestick_data.map((value, index, arr) => {
+                    if (index === 0) return [value[0], 0];
+                    const prevClose = arr[index - 1][4];
+                    const currClose = value[4];
+                    return [value[0], ((currClose - prevClose) / prevClose) * 100];
+                }),
+                yAxis: 1
+            },
+            {
+                name: 'K線型態',
+                data: data.kline_patterns.map(pattern => ({
+                    x: pattern[0],
+                    y: pattern[1],
+                    pattern: pattern[2],
+                    additionalInfo: pattern[3],
+                    marker: {
+                        symbol: pattern[2] === 'bullish' ? 'triangle' : (pattern[2] === 'bearish' ? 'triangle-down' : 'circle'),
+                        fillColor: pattern[2] === 'bullish' ? '#00FF00' : (pattern[2] === 'bearish' ? '#FF0000' : '#0000FF')
+                    }
+                })),
+                tooltip: {
+                    pointFormat: '型態: {point.pattern}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
+                },
+                type: 'scatter'
             }
         ]
     });

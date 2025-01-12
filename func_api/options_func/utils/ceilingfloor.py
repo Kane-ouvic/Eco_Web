@@ -1,6 +1,7 @@
 import yfinance as yf
 import talib
 import numpy as np
+from datetime import datetime
 
 def ceilingfloor(stock_code, start_date, end_date, ma_length, ma_type, method):
 
@@ -45,8 +46,6 @@ def ceilingfloor(stock_code, start_date, end_date, ma_length, ma_type, method):
             print(f"地板乖離率: {floor_ratio:.2%}")
         else:
             ceiling_price = floor_price = ma
-            ceiling_signals = []
-            floor_signals = []
             print("無法計算天花板地板線 - 資料不足")
         
     elif method == 'method2':
@@ -88,22 +87,20 @@ def ceilingfloor(stock_code, start_date, end_date, ma_length, ma_type, method):
             print(f"地板乖離率: {floor_ratio:.2%}")
         else:
             ceiling_price = floor_price = ma
-            ceiling_signals = []
-            floor_signals = []
             print("無法計算天花板地板線 - 資料不足")
             
         
         
     # 找出突破訊號
-    ceiling_signals = []
-    floor_signals = []
+    signals = []
                 
     for i in range(len(stock)):
+        actual_time = datetime.fromtimestamp(stock.index[i].timestamp()).strftime('%Y-%m-%d %H:%M:%S')
         timestamp = int(stock.index[i].timestamp() * 1000)
         if stock['Close'][i] > ceiling_price[i]:
-            ceiling_signals.append([timestamp, stock['Close'][i], 1])  # 1代表突破天花板
+            signals.append([timestamp, stock['Close'][i], 'sell', actual_time])  # 1代表突破天花板
         elif stock['Close'][i] < floor_price[i]:
-            floor_signals.append([timestamp, stock['Close'][i], -1])  # -1代表突破地板
-
+            signals.append([timestamp, stock['Close'][i], 'buy', actual_time])  # -1代表突破地板
     
-    return ma, ceiling_price, floor_price, candlestick_data, ceiling_signals, floor_signals
+    
+    return ma, ceiling_price, floor_price, candlestick_data, signals

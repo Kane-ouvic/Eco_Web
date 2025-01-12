@@ -37,7 +37,10 @@ document.getElementById('search-button').addEventListener('click', function () {
                     macd_hist: data.macd_hist,
                     bool_mid: data.bool_mid,
                     bool_upper: data.bool_upper,
-                    bool_lower: data.bool_lower
+                    bool_lower: data.bool_lower,
+                    kd_signals: data.kd_signals,
+                    macd_signals: data.macd_signals,
+                    bool_signals: data.bool_signals
                 };
                 console.log(chartData);
                 renderChart(chartData);
@@ -191,6 +194,23 @@ function renderChart(data) {
                 color: '#00FF00',
                 lineWidth: 2,
                 yAxis: 1
+            },
+            {
+                name: 'KD進出場訊號',
+                data: data.kd_signals.map(signal => ({
+                    x: signal[0],
+                    y: signal[1],
+                    action: signal[2],
+                    additionalInfo: signal[3],
+                    marker: {
+                        symbol: signal[2] === 'buy' ? 'triangle' : 'triangle-down',
+                        fillColor: signal[2] === 'buy' ? '#000000' : '#000000'
+                    }
+                })),
+                tooltip: {
+                    pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
+                },
+                type: 'scatter'
             }
         ]
     });
@@ -290,6 +310,23 @@ function renderChart(data) {
                     value === -2147483648 ? null : value
                 ]),
                 yAxis: 1
+            },
+            {
+                name: 'MACD進出場訊號',
+                data: data.macd_signals.map(signal => ({
+                    x: signal[0],
+                    y: signal[1],
+                    action: signal[2],
+                    additionalInfo: signal[3],
+                    marker: {
+                        symbol: signal[2] === 'buy' ? 'triangle' : 'triangle-down',
+                        fillColor: signal[2] === 'buy' ? '#000000' : '#000000'
+                    }
+                })),
+                tooltip: {
+                    pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
+                },
+                type: 'scatter'
             }
         ]
     });
@@ -374,6 +411,23 @@ function renderChart(data) {
                 ]),
                 color: '#FF0000',
                 lineWidth: 1
+            },
+            {
+                name: '布林通道進出場訊號',
+                data: data.bool_signals.map(signal => ({
+                    x: signal[0],
+                    y: signal[1],
+                    action: signal[2],
+                    additionalInfo: signal[3],
+                    marker: {
+                        symbol: signal[2] === 'buy' ? 'triangle' : 'triangle-down',
+                        fillColor: signal[2] === 'buy' ? '#000000' : '#000000'
+                    }
+                })),
+                tooltip: {
+                    pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
+                },
+                type: 'scatter'
             }
         ]
     });

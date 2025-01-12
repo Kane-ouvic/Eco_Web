@@ -17,4 +17,5 @@ urlpatterns = [
     path('pricing_strategy/', views.PricingStrategyView.as_view(), name='pricing_strategy'),
     path('entry_exit/', views.EntryExitView.as_view(), name='entry_exit'),
     path('add_entry_exit_track/', views.AddEntryExitTrackView.as_view(), name='add_entry_exit_track'),
+    path('kline/', views.KlineView.as_view(), name='kline'),
 ]

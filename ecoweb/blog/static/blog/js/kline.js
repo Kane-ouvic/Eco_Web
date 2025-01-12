@@ -7,26 +7,20 @@ document.getElementById('search-button').addEventListener('click', function () {
     const stockCode = document.getElementById('stockCode').value;
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
-    const maLength = document.getElementById('maLength').value;
-    const maType = document.getElementById('maType').value;
-    const method = document.getElementById('method').value;
-    fetch(`${API_BASE_URL}/api/ceiling_floor/`, {
+    fetch(`${API_BASE_URL}/api/kline/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': '{{ csrf_token }}'  // 確保Django的CSRF保護
         },
-        body: JSON.stringify({ stockCode: stockCode, startDate: startDate, endDate: endDate, maLength: maLength, maType: maType, method: method })
+        body: JSON.stringify({ stockCode: stockCode, startDate: startDate, endDate: endDate })
     })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 const chartData = {
-                    ma: data.ma,
-                    ceiling_price: data.ceiling_price,
-                    floor_price: data.floor_price,
                     candlestick_data: data.candlestick_data,
-                    signals: data.signals
+                    kline_patterns: data.kline_patterns
                 };
                 console.log(chartData);
                 renderChart(chartData);
@@ -41,10 +35,10 @@ document.getElementById('search-button').addEventListener('click', function () {
 });
 
 function renderInitialChart() {
-    Highcharts.chart('ceiling_floor-chart', {
+    Highcharts.chart('kline-chart', {
         chart: { type: 'line' },
-        title: { text: '天花板地板線結果' },
-        xAxis: { categories: ['天花板地板線'] },
+        title: { text: 'K線型態' },
+        xAxis: { categories: ['K線型態'] },
         yAxis: { title: { text: '價格範圍' } },
         series: [{
             name: '最新價格',
@@ -56,12 +50,12 @@ function renderInitialChart() {
 }
 
 function renderChart(data) {
-    Highcharts.stockChart('ceiling_floor-chart', {
+    Highcharts.stockChart('kline-chart', {
         chart: {
             type: 'line',
             height: 600
         },
-        title: { text: '天花板地板線' },
+        title: { text: 'K線型態' },
         xAxis: {
             type: 'datetime',
             title: { text: '時間' },
@@ -116,33 +110,6 @@ function renderChart(data) {
         },
         series: [
             {
-                name: '移動平均線',
-                data: data.ma.map((value, index) => [
-                    data.candlestick_data[index][0],
-                    value === -2147483648 ? null : value
-                ]),
-                color: '#000000',
-                lineWidth: 2
-            },
-            {
-                name: '天花板線',
-                data: data.ceiling_price.map((value, index) => [
-                    data.candlestick_data[index][0],
-                    value === -2147483648 ? null : value
-                ]),
-                color: '#0000FF',
-                lineWidth: 1
-            },
-            {
-                name: '地板線',
-                data: data.floor_price.map((value, index) => [
-                    data.candlestick_data[index][0],
-                    value === -2147483648 ? null : value
-                ]),
-                color: '#FF0000',
-                lineWidth: 1
-            },
-            {
                 type: 'candlestick',
                 name: '股價',
                 data: data.candlestick_data,
@@ -163,19 +130,19 @@ function renderChart(data) {
                 yAxis: 1
             },
             {
-                name: '天花板地板進出場訊號',
-                data: data.signals.map(signal => ({
-                    x: signal[0],
-                    y: signal[1],
-                    action: signal[2],
-                    additionalInfo: signal[3],
+                name: 'K線型態',
+                data: data.kline_patterns.map(pattern => ({
+                    x: pattern[0],
+                    y: pattern[1],
+                    pattern: pattern[2],
+                    additionalInfo: pattern[3],
                     marker: {
-                        symbol: signal[2] === 'buy' ? 'triangle' : 'triangle-down',
-                        fillColor: signal[2] === 'buy' ? '#000000' : '#000000'
+                        symbol: pattern[2] === 'bullish' ? 'triangle' : (pattern[2] === 'bearish' ? 'triangle-down' : 'circle'),
+                        fillColor: pattern[2] === 'bullish' ? '#00FF00' : (pattern[2] === 'bearish' ? '#FF0000' : '#0000FF')
                     }
                 })),
                 tooltip: {
-                    pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
+                    pointFormat: '型態: {point.pattern}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
                 },
                 type: 'scatter'
             }

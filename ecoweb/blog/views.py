@@ -50,6 +50,10 @@ def kd_macd_bool(request):
 def rsi_adx_dmi(request):
     return render(request, 'blog/rsi_adx_dmi.html')
 
+@login_required
+def kline(request):
+    return render(request, 'blog/kline.html')
+
 def test(request):
     print("hi")
     # return render(request, 'blog')

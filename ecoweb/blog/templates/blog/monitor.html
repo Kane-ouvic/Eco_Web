@@ -61,6 +61,20 @@
                 <th>End Date</th>
                 <th>Tracking Date</th>
                 <th>Actions</th>
+                <th style="display: none;">MA Length</th>
+                <th style="display: none;">MA Type</th>
+                <th style="display: none;">Method</th>
+                <th style="display: none;">FastK Period</th>
+                <th style="display: none;">SlowK Period</th>
+                <th style="display: none;">SlowD Period</th>
+                <th style="display: none;">FastPeriod</th>
+                <th style="display: none;">SlowPeriod</th>
+                <th style="display: none;">SignalPeriod</th>
+                <th style="display: none;">TimePeriod</th>
+                <th style="display: none;">Nbdevup</th>
+                <th style="display: none;">Nbdevdn</th>
+                <th style="display: none;">Rsi Period</th>
+                <th style="display: none;">Adx Period</th>
             </tr>
         </thead>
         <tbody>
@@ -74,6 +88,20 @@
                     <button class="btn btn-danger btn-sm untrack-btn2"  data-track-id="{{ track.id }}">Untrack</button>
                     <button class="btn btn-success btn-sm results-btn2"  data-track-id="{{ track.id }}">Results</button>
                 </td>
+                <td id="method-{{ track.id }}" style="display: none;">{{ track.method }}</td>
+                <td id="ma_length-{{ track.id }}" style="display: none;">{{ track.ma_length }}</td>
+                <td id="ma_type-{{ track.id }}" style="display: none;">{{ track.ma_type }}</td>
+                <td id="fastk_period-{{ track.id }}" style="display: none;">{{ track.fastk_period }}</td>
+                <td id="slowk_period-{{ track.id }}" style="display: none;">{{ track.slowk_period }}</td>
+                <td id="slowd_period-{{ track.id }}" style="display: none;">{{ track.slowd_period }}</td>
+                <td id="fastperiod-{{ track.id }}" style="display: none;">{{ track.fastperiod }}</td>
+                <td id="slowperiod-{{ track.id }}" style="display: none;">{{ track.slowperiod }}</td>
+                <td id="signalperiod-{{ track.id }}" style="display: none;">{{ track.signalperiod }}</td>
+                <td id="timeperiod-{{ track.id }}" style="display: none;">{{ track.timeperiod }}</td>
+                <td id="nbdevup-{{ track.id }}" style="display: none;">{{ track.nbdevup }}</td>
+                <td id="nbdevdn-{{ track.id }}" style="display: none;">{{ track.nbdevdn }}</td>
+                <td id="rsi_period-{{ track.id }}" style="display: none;">{{ track.rsi_period }}</td>
+                <td id="adx_period-{{ track.id }}" style="display: none;">{{ track.adx_period }}</td>
             </tr>
             {% empty %}
             <tr>

@@ -20,6 +20,7 @@ from .utils.kdmacdbool import kdmacdbool
 from .utils.ceilingfloor import ceilingfloor
 from .utils.rsiadxdmi import rsiadxdmi
 from .utils.stock_selection import stock_selection
+from .utils.kline import kline
 from django.http import QueryDict
 from django.utils.dateparse import parse_date
 from django.utils import timezone
@@ -275,7 +276,7 @@ class CeilingFloorView(APIView):
         ma_type = request.data.get('maType')
         method = request.data.get('method')
         
-        ma, ceiling_price, floor_price, candlestick_data, ceiling_signals, floor_signals = ceilingfloor(stock_code, start_date, end_date, ma_length, ma_type, method)
+        ma, ceiling_price, floor_price, candlestick_data, signals = ceilingfloor(stock_code, start_date, end_date, ma_length, ma_type, method)
         
         
         return Response({
@@ -284,8 +285,7 @@ class CeilingFloorView(APIView):
             'ceiling_price': ceiling_price.fillna(-2147483648),
             'floor_price': floor_price.fillna(-2147483648),
             'candlestick_data': candlestick_data,
-            'ceiling_signals': ceiling_signals,
-            'floor_signals': floor_signals
+            'signals': signals
         }, status=status.HTTP_200_OK)
         
 
@@ -311,7 +311,7 @@ class KdMacdBoolView(APIView):
         kd = {}
         macd = {}
         bool = {}
-        candlestick_data, kd['K'], kd['D'], macd['MACD'], macd['signal'], macd['hist'], bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = kdmacdbool(stock_code, start_date, end_date, fastk_period, slowk_period, slowd_period, fastperiod, slowperiod, signalperiod, timeperiod, nbdevup, nbdevdn)
+        candlestick_data, kd['K'], kd['D'], macd['MACD'], macd['signal'], macd['hist'], bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'], signals = kdmacdbool(stock_code, start_date, end_date, fastk_period, slowk_period, slowd_period, fastperiod, slowperiod, signalperiod, timeperiod, nbdevup, nbdevdn)
         
         return Response({
             'success': True,
@@ -323,7 +323,10 @@ class KdMacdBoolView(APIView):
             'macd_hist': macd['hist'].fillna(-2147483648),
             'bool_mid': bool['MIDDLEBAND'].fillna(-2147483648),
             'bool_upper': bool['UPPERBAND'].fillna(-2147483648),
-            'bool_lower': bool['LOWERBAND'].fillna(-2147483648)
+            'bool_lower': bool['LOWERBAND'].fillna(-2147483648),
+            'kd_signals': signals['kd_signals'],
+            'macd_signals': signals['macd_signals'],
+            'bool_signals': signals['bool_signals']
         }, status=status.HTTP_200_OK)
         
     
@@ -337,7 +340,7 @@ class RsiAdxDmiView(APIView):
         adx_period = int(request.data.get('adx_period'))
         # stock = yf.download(f"{stock_code}.TW", start=start_date)
         
-        candlestick_data, rsi, adx, plus_di, minus_di = rsiadxdmi(stock_code, start_date, end_date, rsi_period, adx_period)
+        candlestick_data, rsi, adx, plus_di, minus_di, signals = rsiadxdmi(stock_code, start_date, end_date, rsi_period, adx_period)
         
         return Response({
             'success': True,
@@ -345,7 +348,9 @@ class RsiAdxDmiView(APIView):
             'rsi': rsi.fillna(-2147483648),
             'adx': adx.fillna(-2147483648),
             'plus_di': plus_di.fillna(-2147483648),
-            'minus_di': minus_di.fillna(-2147483648)
+            'minus_di': minus_di.fillna(-2147483648),
+            'rsi_signals': signals['rsi_signals'],
+            'adx_signals': signals['adx_signals']
         }, status=status.HTTP_200_OK)
 
 
@@ -371,12 +376,13 @@ class EntryExitView(APIView):
         rsi_period = int(request.data.get('rsi_period'))
         adx_period = int(request.data.get('adx_period'))
         
-        ma, ceiling_price, floor_price, candlestick_data, ceiling_signals, floor_signals = ceilingfloor(stock_code, start_date, end_date, ma_length, ma_type, method)
+        ma, ceiling_price, floor_price, candlestick_data, signals1 = ceilingfloor(stock_code, start_date, end_date, ma_length, ma_type, method)
         kd = {}
         macd = {}
         bool = {}
-        candlestick_data, kd['K'], kd['D'], macd['MACD'], macd['signal'], macd['hist'], bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = kdmacdbool(stock_code, start_date, end_date, fastk_period, slowk_period, slowd_period, fastperiod, slowperiod, signalperiod, timeperiod, nbdevup, nbdevdn)
-        candlestick_data, rsi, adx, plus_di, minus_di = rsiadxdmi(stock_code, start_date, end_date, rsi_period, adx_period)
+        candlestick_data, kd['K'], kd['D'], macd['MACD'], macd['signal'], macd['hist'], bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'], signals2 = kdmacdbool(stock_code, start_date, end_date, fastk_period, slowk_period, slowd_period, fastperiod, slowperiod, signalperiod, timeperiod, nbdevup, nbdevdn)
+        candlestick_data, rsi, adx, plus_di, minus_di, signals3 = rsiadxdmi(stock_code, start_date, end_date, rsi_period, adx_period)
+        candlestick_data, kline_patterns = kline(stock_code, start_date, end_date)
         
         return Response({
             'success': True,
@@ -384,8 +390,6 @@ class EntryExitView(APIView):
             'ma': ma.fillna(-2147483648),
             'ceiling_price': ceiling_price.fillna(-2147483648),
             'floor_price': floor_price.fillna(-2147483648),
-            'ceiling_signals': ceiling_signals,
-            'floor_signals': floor_signals,
             'kd_K': kd['K'].fillna(-2147483648),
             'kd_D': kd['D'].fillna(-2147483648),
             'macd_data': macd['MACD'].fillna(-2147483648),
@@ -397,7 +401,14 @@ class EntryExitView(APIView):
             'rsi': rsi.fillna(-2147483648),
             'adx': adx.fillna(-2147483648),
             'plus_di': plus_di.fillna(-2147483648),
-            'minus_di': minus_di.fillna(-2147483648)
+            'minus_di': minus_di.fillna(-2147483648),
+            'ceilingfloor_signals': signals1,
+            'kd_signals': signals2['kd_signals'],
+            'macd_signals': signals2['macd_signals'],
+            'bool_signals': signals2['bool_signals'],
+            'rsi_signals': signals3['rsi_signals'],
+            'adx_signals': signals3['adx_signals'],
+            'kline_patterns': kline_patterns
         }, status=status.HTTP_200_OK)
         # if strategy == 'ceil_floor':
         #     ma, ceiling_price, floor_price, candlestick_data, ceiling_signals, floor_signals = entry_exit(stock_code, start_date, end_date, strategy)
@@ -566,3 +577,11 @@ class AddEntryExitTrackView(APIView):
         except Exception as e:
             print(f"Error untracking: {str(e)}")
             return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class KlineView(APIView):
+    def post(self, request):
+        stock_code = request.data.get('stockCode')
+        start_date = request.data.get('startDate')
+        end_date = request.data.get('endDate')
+        candlestick_data, kline_patterns = kline(stock_code, start_date, end_date)
+        return Response({'success': True, 'candlestick_data': candlestick_data, 'kline_patterns': kline_patterns}, status=status.HTTP_200_OK)

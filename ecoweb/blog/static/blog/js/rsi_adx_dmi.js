@@ -25,7 +25,9 @@ document.getElementById('search-button').addEventListener('click', function () {
                     rsi: data.rsi,
                     adx: data.adx,
                     plus_di: data.plus_di,
-                    minus_di: data.minus_di
+                    minus_di: data.minus_di,
+                    rsi_signals: data.rsi_signals,
+                    adx_signals: data.adx_signals
                 };
                 console.log(chartData);
                 renderChart(chartData);
@@ -147,6 +149,23 @@ function renderChart(data) {
                 color: '#0000FF',
                 lineWidth: 2,
                 yAxis: 1
+            },
+            {
+                name: 'RSI進出場訊號',
+                data: data.rsi_signals.map(signal => ({
+                    x: signal[0],
+                    y: signal[1],
+                    action: signal[2],
+                    additionalInfo: signal[3],
+                    marker: {
+                        symbol: signal[2] === 'buy' ? 'triangle' : 'triangle-down',
+                        fillColor: signal[2] === 'buy' ? '#000000' : '#000000'
+                    }
+                })),
+                tooltip: {
+                    pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
+                },
+                type: 'scatter'
             }
         ]
     });
@@ -227,6 +246,23 @@ function renderChart(data) {
                 color: '#FF0000',
                 lineWidth: 2,
                 yAxis: 1
+            },
+            {
+                name: 'ADX進出場訊號',
+                data: data.adx_signals.map(signal => ({
+                    x: signal[0],
+                    y: signal[1],
+                    action: signal[2],
+                    additionalInfo: signal[3],
+                    marker: {
+                        symbol: signal[2] === 'buy' ? 'triangle' : 'triangle-down',
+                        fillColor: signal[2] === 'buy' ? '#000000' : '#000000'
+                    }
+                })),
+                tooltip: {
+                    pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
+                },
+                type: 'scatter'
             }
         ]
     });

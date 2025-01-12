@@ -15,6 +15,7 @@ urlpatterns = [
     path('rsi_adx_dmi/', views.rsi_adx_dmi, name='rsi_adx_dmi'),
     path('pricing_strategy/', views.pricing_strategy, name='pricing_strategy'),
     path('entry_exit/', views.entry_exit, name='entry_exit'),
+    path('kline/', views.kline, name='kline'),
     # path('login/', views.login_view, name='login'),
     # path('logout/', views.logout_view, name='logout'),
     # path('register/', views.register, name='register'),
