@@ -166,5 +166,6 @@ def update_enddate_in_entry_exit_track(new_enddate):
     conn.close()
 
 # 指定新的結束時間
-new_enddate = '2024-12-31'
+# new_enddate = "2025-01-10"
+new_enddate = datetime.today().strftime('%Y-%m-%d')
 update_enddate_in_entry_exit_track(new_enddate)
