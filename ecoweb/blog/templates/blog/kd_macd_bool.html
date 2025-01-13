@@ -5,34 +5,38 @@
 <div class="container mt-4">
     <h2 class="text-center">KD MACD 布林通道</h2>
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <form id="peRatioForm">
+        <div class="card mb-4">
+            <div class="card-header">Strategy Parameters</div>
+            <div class="card-body">
+        <div class="col-md-12">
+            <form id="kdmacdboolForm">
                 <div class="form-row align-items-center">
-                    <div class="col-md-5">
-                        <label for="stockCode">股票代號:</label>
-                        <input type="text" class="form-control mb-2" id="stockCode" placeholder="請輸入股票代號" required>
-                    </div>
-                    <div class="col-md-5">
-                        <label for="startDate">起始日期:</label>
-                        <input type="date" class="form-control mb-2" id="startDate" required>
-                    </div>
-                    <div class="col-md-5">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="stockCode">股票代號:</label>
+                            <input type="text" class="form-control mb-2" id="stockCode" placeholder="請輸入股票代號" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="startDate">起始日期:</label>
+                            <input type="date" class="form-control mb-2" id="startDate" required>
+                        </div>
+                        <div class="col-md-4">
                         <label for="endDate">結束日期:</label>
-                        <input type="date" class="form-control mb-2" id="endDate" required>
+                            <input type="date" class="form-control mb-2" id="endDate" required>
+                        </div>
                     </div>
-                    
 
                     <div class="row">
                         <div>KD參數</div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label for="fastk_period">Fast K 週期:</label>
                         <input type="number" class="form-control mb-2" id="fastk_period" placeholder="請輸入 Fast K 週期" value="9" required>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label for="slowk_period">Slow K 週期:</label>
                         <input type="number" class="form-control mb-2" id="slowk_period" placeholder="請輸入 Slow K 週期" value="3" required>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label for="slowd_period">Slow D 週期:</label>
                         <input type="number" class="form-control mb-2" id="slowd_period" placeholder="請輸入 Slow D 週期" value="3" required>
                     </div>
@@ -40,30 +44,30 @@
                     
                     <div class="row">
                         <div>MACD參數</div>
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <label for="fastperiod">快速週期:</label>
                             <input type="number" class="form-control mb-2" id="fastperiod" placeholder="請輸入快速週期" value="12" required>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <label for="slowperiod">慢速週期:</label>
                             <input type="number" class="form-control mb-2" id="slowperiod" placeholder="請輸入慢速週期" value="26" required>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <label for="signalperiod">訊號週期:</label>
                             <input type="number" class="form-control mb-2" id="signalperiod" placeholder="請輸入訊號週期" value="9" required>
                         </div>
                     </div>
                     <div class="row">
                         <div>布林通道參數</div>
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <label for="timeperiod">時間週期:</label>
                             <input type="number" class="form-control mb-2" id="timeperiod" placeholder="請輸入時間週期" value="5" required>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <label for="nbdevup">上軌標準差倍數:</label>
                             <input type="number" class="form-control mb-2" id="nbdevup" placeholder="請輸入上軌標準差倍數" value="2" required>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <label for="nbdevdn">下軌標準差倍數:</label>
                             <input type="number" class="form-control mb-2" id="nbdevdn" placeholder="請輸入下軌標準差倍數" value="2" required>
                         </div>
@@ -74,6 +78,8 @@
                 </div>
             </form>
             
+        </div>
+        </div>
         </div>
         <div id="kd-chart" class="mt-3"></div>
         <div id="macd-chart" class="mt-3"></div>

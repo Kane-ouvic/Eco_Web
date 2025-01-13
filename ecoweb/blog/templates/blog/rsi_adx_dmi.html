@@ -5,31 +5,36 @@
 <div class="container mt-4">
     <h2 class="text-center">RSI ADX DMI</h2>
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <form id="peRatioForm">
+        <div class="card mb-4">
+        <div class="card-header">Strategy Parameters</div>
+        <div class="card-body">
+        <div class="col-md-12">
+            <form id="rsiadxdmiForm">
                 <div class="form-row align-items-center">
-                    <div class="col-md-5">
+                    <div class="row">
+                    <div class="col-md-4">
                         <label for="stockCode">股票代號:</label>
                         <input type="text" class="form-control mb-2" id="stockCode" placeholder="請輸入股票代號" required>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label for="startDate">起始日期:</label>
                         <input type="date" class="form-control mb-2" id="startDate" required>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label for="endDate">結束日期:</label>
                         <input type="date" class="form-control mb-2" id="endDate" required>
                     </div>
+                </div>
 
                     <div class="row">
                         
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div>RSI參數</div>
                         <label for="rsi_period">週期:</label>
                         <input type="number" class="form-control mb-2" id="rsi_period" placeholder="請輸入 RSI 週期" value="14" required>
                     </div>
                         
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div>ADX/DMI參數</div>
                         <label for="adx_period">週期:</label>
                         <input type="number" class="form-control mb-2" id="adx_period" placeholder="請輸入 ADX/DMI 週期" value="14" required>
@@ -44,6 +49,8 @@
             </form>
             
             <!-- <div id="dmi-chart" class="mt-3"></div> -->
+        </div>
+        </div>
         </div>
         <div id="rsi-chart" class="mt-3"></div>
         <div id="adx-dmi-chart" class="mt-3"></div>
