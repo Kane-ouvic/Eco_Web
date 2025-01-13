@@ -20,10 +20,12 @@ from .utils.kdmacdbool import kdmacdbool
 from .utils.ceilingfloor import ceilingfloor
 from .utils.rsiadxdmi import rsiadxdmi
 from .utils.stock_selection import stock_selection
+from .utils.rsi_backtrader import rsi_backtrader
 from .utils.kline import kline
 from django.http import QueryDict
 from django.utils.dateparse import parse_date
 from django.utils import timezone
+from django.http import HttpResponse
 from .models import UserTracker, EntryExitTrack  # 添加這行在文件頂部
 from rest_framework import status        
 from fin import *  # 從指定路徑導入 fin 模組
@@ -118,6 +120,26 @@ class TestView(APIView):
     def post(self, request):
         print(request.data)
         return Response({'message': 'Hello, world!'})
+
+class RsiBacktraderView(APIView):
+    def post(self, request):
+        print(request.data)
+        stock_symbol = request.data.get('stockCode')
+        start_date = request.data.get('startDate')
+        end_date = request.data.get('endDate')
+        short_rsi = int(request.data.get('short_rsi'))
+        long_rsi = int(request.data.get('long_rsi'))
+        rsi_upper = int(request.data.get('rsi_upper'))
+        rsi_lower = int(request.data.get('rsi_lower'))
+        stake = int(request.data.get('stake'))
+        initial_cash = float(request.data.get('initial_cash'))
+        commission = float(request.data.get('commission'))
+        result = rsi_backtrader(stock_symbol, start_date, end_date, short_rsi, long_rsi, rsi_upper, rsi_lower, stake, initial_cash, commission)
+        response = HttpResponse(content_type='image/png')
+        result.savefig(response, format='png')
+        response['Content-Disposition'] = 'inline; filename="backtest_result.png"'
+        print(response)
+        return response
 
 class AddTrackView(APIView):
     def post(self, request):

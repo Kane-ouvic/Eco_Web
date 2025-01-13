@@ -18,4 +18,5 @@ urlpatterns = [
     path('entry_exit/', views.EntryExitView.as_view(), name='entry_exit'),
     path('add_entry_exit_track/', views.AddEntryExitTrackView.as_view(), name='add_entry_exit_track'),
     path('kline/', views.KlineView.as_view(), name='kline'),
+    path('rsi_backtrader/', views.RsiBacktraderView.as_view(), name='rsi_backtrader'),
 ]

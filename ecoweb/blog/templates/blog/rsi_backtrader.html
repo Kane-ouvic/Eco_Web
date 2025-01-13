@@ -1,0 +1,89 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-left">RSI Backtrader</h2>
+    <div class="row justify-content-center">
+        <div class="card mb-4">
+        <div class="card-header">Strategy Parameters</div>
+        <div class="card-body">
+        <div class="col-md-12">
+            <form id="peRatioForm">
+                <div class="form-row align-items-center">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="stockCode">股票代號:</label>
+                            <input type="text" class="form-control mb-2" id="stockCode" placeholder="請輸入股票代號" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="startDate">起始日期:</label>
+                            <input type="date" class="form-control mb-2" id="startDate" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="endDate">結束日期:</label>
+                            <input type="date" class="form-control mb-2" id="endDate" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="rsi_short_period">短期 RSI 週期:</label>
+                            <input type="number" class="form-control mb-2" id="rsi_short_period" placeholder="請輸入短期 RSI 週期" value="14" required>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label for="rsi_long_period">長期 RSI 週期:</label>
+                            <input type="number" class="form-control mb-2" id="rsi_long_period" placeholder="請輸入長期 RSI 週期" value="30" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="rsi_upper">超買區:</label>
+                            <input type="number" class="form-control mb-2" id="rsi_upper" placeholder="請輸入超買區" value="70" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="rsi_lower">超賣區:</label>
+                            <input type="number" class="form-control mb-2" id="rsi_lower" placeholder="請輸入超賣區" value="30" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="stake">單筆下單股數:</label>
+                            <input type="number" class="form-control mb-2" id="stake" placeholder="請輸入單筆下單股數" value="1000" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="initial_cash">初始資金:</label>
+                            <input type="number" class="form-control mb-2" id="initial_cash" placeholder="請輸入初始資金" value="100000" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="commission">手續費比率:</label>
+                            <input type="number" class="form-control mb-2" id="commission" placeholder="請輸入手續費" value="0.001425" step="0.000001" required>
+                        </div>
+                        </div>
+
+
+                    <div class="col-md-2">
+                        <button type="button" id="search-button" class="btn btn-primary mb-2">執行回測</button>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- <div id="dmi-chart" class="mt-3"></div> -->
+        </div>
+        </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <img id="backtest-result" src="" alt="回測結果" class="img-fluid mt-3" style="display: none;">
+            </div>
+        </div>
+        <!-- <div id="rsi-chart" class="mt-3"></div>
+        <div id="adx-dmi-chart" class="mt-3"></div> -->
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="{% static 'blog/js/rsi_backtrader.js' %}"></script>
+{% endblock %}

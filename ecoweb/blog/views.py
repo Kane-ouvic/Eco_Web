@@ -27,6 +27,10 @@ def rsi_backtest(request):
     return render(request, 'blog/rsi2_backtest.html')
 
 @login_required
+def rsi_backtrader(request):
+    return render(request, 'blog/rsi_backtrader.html')
+
+@login_required
 def stock_selection(request):
     return render(request, 'blog/stock_selection.html')
 
