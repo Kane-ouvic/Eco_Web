@@ -1,5 +1,5 @@
 import yfinance as yf
-import pandas_ta as ta
+import talib
 import numpy as np
 import logging
 from datetime import datetime, date
@@ -14,8 +14,8 @@ def rsi_method(etf_symbol, start_date, end_date, short_rsi, long_rsi, exit_thres
             raise ValueError("無法獲取股票數據")
 
         # 計算 RSI
-        data['rsi1'] = ta.rsi(data['Close'], length=short_rsi)
-        data['rsi2'] = ta.rsi(data['Close'], length=long_rsi)
+        data['rsi1'] = talib.RSI(data['Close'], timeperiod=short_rsi)
+        data['rsi2'] = talib.RSI(data['Close'], timeperiod=long_rsi)
         
         if 'rsi1' not in data.columns or 'rsi2' not in data.columns:
             raise ValueError("RSI 計算失敗")

@@ -9,15 +9,15 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 複製 ecoweb 和 config 目錄
-COPY ecoweb/ ecoweb/
+COPY auth/ auth/
 COPY config/ config/
 COPY .env .env
 
 # 設定工作目錄到 ecoweb
-WORKDIR /app/ecoweb
+WORKDIR /app/auth
 
 # 開放應用程式運行的端口
-EXPOSE 8000
+EXPOSE 55554
 
 # 啟動 Django 應用程式
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:55554"]

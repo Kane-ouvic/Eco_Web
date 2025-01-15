@@ -7,7 +7,7 @@ def kline(stock_code, start_date, end_date):
 
     candlestick_data = []
     kline_patterns = []
-
+    volume_data = []
     for idx, (i, row) in enumerate(stock.iterrows()):
         try:
             if isinstance(i, datetime):
@@ -17,6 +17,7 @@ def kline(stock_code, start_date, end_date):
                 low_price = float(row['Low'])
                 close_price = float(row['Close'])
                 candlestick_data.append([timestamp, open_price, high_price, low_price, close_price])
+                volume_data.append([timestamp, float(row['Volume'])])
 
                 # 簡單的K線型態判斷
                 if close_price > open_price:
@@ -33,4 +34,4 @@ def kline(stock_code, start_date, end_date):
             print(f"問題資料: timestamp={i}, row={row}")
             continue
 
-    return candlestick_data, kline_patterns
+    return candlestick_data, volume_data, kline_patterns

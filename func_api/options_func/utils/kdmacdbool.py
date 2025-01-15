@@ -16,13 +16,14 @@ def kdmacdbool(stock_code, start_date, end_date, fastk_period, slowk_period, slo
     bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'] = talib.BBANDS(stock['Close'], timeperiod=timeperiod, nbdevup=nbdevup, nbdevdn=nbdevdn, matype=0)
          
     candlestick_data = []
+    volume_data = []
     for idx, (i, row) in enumerate(stock.iterrows()):
         try:
             if isinstance(i, datetime):
                 actual_time = i.strftime('%Y-%m-%d %H:%M:%S')
                 timestamp = int(i.timestamp() * 1000)
                 candlestick_data.append([timestamp, float(row['Open']), float(row['High']), float(row['Low']), float(row['Close'])])
-
+                volume_data.append([timestamp, float(row['Volume'])])
                 # 計算 KD 指標進出場訊號
                 if idx > 0:
                     if kd['K'][idx] > kd['D'][idx] and kd['K'][idx-1] <= kd['D'][idx-1]:
@@ -51,4 +52,4 @@ def kdmacdbool(stock_code, start_date, end_date, fastk_period, slowk_period, slo
             print(f"問題資料: timestamp={i}, row={row}")
             continue
         
-    return candlestick_data, kd['K'], kd['D'], macd['MACD'], macd['signal'], macd['hist'], bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'], signals
+    return candlestick_data, volume_data, kd['K'], kd['D'], macd['MACD'], macd['signal'], macd['hist'], bool['MIDDLEBAND'], bool['UPPERBAND'], bool['LOWERBAND'], signals

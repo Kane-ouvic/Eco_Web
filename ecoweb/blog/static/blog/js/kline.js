@@ -20,6 +20,7 @@ document.getElementById('search-button').addEventListener('click', function () {
             if (data.success) {
                 const chartData = {
                     candlestick_data: data.candlestick_data,
+                    volume_data: data.volume_data,
                     kline_patterns: data.kline_patterns
                 };
                 console.log(chartData);
@@ -53,7 +54,7 @@ function renderChart(data) {
     Highcharts.stockChart('kline-chart', {
         chart: {
             type: 'line',
-            height: 600
+            height: 800
         },
         title: { text: 'K線型態' },
         xAxis: {
@@ -63,7 +64,7 @@ function renderChart(data) {
         },
         yAxis: [{
             title: { text: '價格' },
-            height: '60%',
+            height: '40%',
             plotLines: [{
                 value: 15,
                 width: 1,
@@ -71,8 +72,13 @@ function renderChart(data) {
             }]
         }, {
             title: { text: '漲跌幅度' },
-            top: '65%',
-            height: '35%',
+            top: '45%',
+            height: '20%',
+            offset: 0
+        }, {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
             offset: 0
         }],
         rangeSelector: {
@@ -145,6 +151,13 @@ function renderChart(data) {
                     pointFormat: '型態: {point.pattern}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
                 },
                 type: 'scatter'
+            },
+            {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 2,
+                color: '#888888'
             }
         ]
     });

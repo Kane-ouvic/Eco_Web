@@ -11,6 +11,7 @@ def rsiadxdmi(stock_code, start_date, end_date, rsi_period, adx_period):
     minus_di = talib.MINUS_DI(stock['High'], stock['Low'], stock['Close'], timeperiod=adx_period)
     
     candlestick_data = []
+    volume_data = []
     signals = {'rsi_signals': [], 'adx_signals': []}
     
     for idx, (i, row) in enumerate(stock.iterrows()):
@@ -18,7 +19,7 @@ def rsiadxdmi(stock_code, start_date, end_date, rsi_period, adx_period):
             if isinstance(i, datetime):
                 timestamp = int(i.timestamp() * 1000)
                 candlestick_data.append([timestamp, float(row['Open']), float(row['High']), float(row['Low']), float(row['Close'])])
-                
+                volume_data.append([timestamp, float(row['Volume'])])
                 # 計算 RSI 進出場訊號
                 if idx > 0:
                     if rsi[idx] > 70 and rsi[idx-1] <= 70:
@@ -40,4 +41,4 @@ def rsiadxdmi(stock_code, start_date, end_date, rsi_period, adx_period):
             print(f"問題資料: timestamp={i}, row={row}")
             continue
     
-    return candlestick_data, rsi, adx, plus_di, minus_di, signals
+    return candlestick_data, volume_data, rsi, adx, plus_di, minus_di, signals

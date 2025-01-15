@@ -43,6 +43,7 @@ document.getElementById('search-button').addEventListener('click', function () {
                     candlestick_data: data.candlestick_data,
                     ma: data.ma,
                     ceiling_price: data.ceiling_price,
+                    volume_data: data.volume_data,
                     floor_price: data.floor_price,
                     ceiling_signals: data.ceiling_signals,
                     floor_signals: data.floor_signals,
@@ -66,60 +67,7 @@ document.getElementById('search-button').addEventListener('click', function () {
                     adx_signals: data.adx_signals,
                     kline_patterns: data.kline_patterns
                 };
-                // if (strategy === 'ceil_floor') {
-                //     chartData = {
-                //         ma: data.ma,
-                //         ceiling_price: data.ceiling_price,
-                //         floor_price: data.floor_price,
-                //         candlestick_data: data.candlestick_data,
-                //         ceiling_signals: data.ceiling_signals,
-                //         floor_signals: data.floor_signals
-                //     };
-                // } else if (strategy === 'kd') {
-                //     chartData = {
-                //         ma: data.ma,
-                //         candlestick_data: data.candlestick_data,
-                //         kd_K: data.kd_K,
-                //         kd_D: data.kd_D,
-                //     };
-                // } else if (strategy === 'macd') {
-                //     chartData = {
-                //         ma: data.ma,
-                //         candlestick_data: data.candlestick_data,
-                //         macd_data: data.macd_data,
-                //         macd_signal: data.macd_signal,
-                //         macd_hist: data.macd_hist,
-                //     };
-                // } else if (strategy === 'booling') {
-                //     chartData = {
-                //         ma: data.ma,
-                //         candlestick_data: data.candlestick_data,
-                //         bool_mid: data.bool_mid,
-                //         bool_upper: data.bool_upper,
-                //         bool_lower: data.bool_lower
-                //     };
-                // } else if (strategy === 'rsi') {
-                //     chartData = {
-                //         candlestick_data: data.candlestick_data,
-                //         rsi: data.rsi,
-                //     };
-                // } else if (strategy === 'adx_dmi') {
-                //     chartData = {
-                //         candlestick_data: data.candlestick_data,
-                //         adx: data.adx,
-                //         plus_di: data.plus_di,
-                //         minus_di: data.minus_di
-                //     };
-                // } else if (strategy === 'kline') {
-                // }
-                // // const chartData = {
-                // //     candlestick_data: data.candlestick_data,
-                // //     rsi: data.rsi,
-                // //     adx: data.adx,
-                // //     plus_di: data.plus_di,
-                // //     minus_di: data.minus_di
-                // // };
-                // // console.log(chartData);
+
                 renderChart(chartData);
             } else {
                 console.error('API回傳錯誤:', data.error);
@@ -163,7 +111,7 @@ function renderChart(data) {
     Highcharts.stockChart('ceiling_floor-chart', {
         chart: {
             type: 'line',
-            height: 600
+            height: 800
         },
         title: { text: '天花板地板線' },
         xAxis: {
@@ -172,8 +120,8 @@ function renderChart(data) {
             ordinal: false
         },
         yAxis: [{
-            title: { text: '價格' },
-            height: '60%',
+            title: { text: '股價' },
+            height: '40%',
             plotLines: [{
                 value: 15,
                 width: 1,
@@ -181,8 +129,13 @@ function renderChart(data) {
             }]
         }, {
             title: { text: '漲跌幅度' },
-            top: '65%',
-            height: '35%',
+            top: '45%',
+            height: '20%',
+            offset: 0
+        }, {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
             offset: 0
         }],
         rangeSelector: {
@@ -267,6 +220,13 @@ function renderChart(data) {
                 yAxis: 1
             },
             {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 2,
+                color: '#888888'
+            },
+            {
                 name: '天花板地板進出場訊號',
                 data: data.ceilingfloor_signals.map(signal => ({
                     x: signal[0],
@@ -290,7 +250,7 @@ function renderChart(data) {
     Highcharts.stockChart('kd-chart', {
         chart: {
             type: 'line',
-            height: 600
+            height: 800
         },
         title: { text: 'KD線' },
         xAxis: {
@@ -300,11 +260,11 @@ function renderChart(data) {
         },
         yAxis: [{
             title: { text: '股價' },
-            height: '60%'
+            height: '40%'
         }, {
             title: { text: 'KD值' },
-            top: '65%',
-            height: '50%',
+            top: '45%',
+            height: '20%',
             offset: 0,
             plotBands: [{
                 from: 80,
@@ -332,6 +292,11 @@ function renderChart(data) {
                 color: '#00FF00',
                 dashStyle: 'dash'
             }]
+        }, {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
+            offset: 0
         }],
         rangeSelector: {
             enabled: true,
@@ -403,6 +368,13 @@ function renderChart(data) {
                     pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
                 },
                 type: 'scatter'
+            },
+            {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 2,
+                color: '#888888'
             }
         ]
     });
@@ -411,7 +383,7 @@ function renderChart(data) {
     Highcharts.stockChart('macd-chart', {
         chart: {
             type: 'line',
-            height: 600
+            height: 800
         },
         title: {
             text: 'MACD指標'
@@ -427,13 +399,18 @@ function renderChart(data) {
             title: {
                 text: '股價'
             },
-            height: '60%'
+            height: '40%'
         }, {
             title: {
                 text: 'MACD'
             },
-            top: '65%',
-            height: '35%',
+            top: '45%',
+            height: '20%',
+            offset: 0
+        }, {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
             offset: 0
         }],
         rangeSelector: {
@@ -519,6 +496,13 @@ function renderChart(data) {
                     pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
                 },
                 type: 'scatter'
+            },
+            {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 2,
+                color: '#888888'
             }
         ]
     });
@@ -536,13 +520,18 @@ function renderChart(data) {
             ordinal: false
         },
         yAxis: [{
-            title: { text: '價格' },
-            height: '100%',
+            title: { text: '股價' },
+            height: '70%',
             plotLines: [{
                 value: 15,
                 width: 1,
                 color: '#808080'
             }]
+        }, {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
+            offset: 0
         }],
         rangeSelector: {
             enabled: true,
@@ -620,6 +609,13 @@ function renderChart(data) {
                     pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
                 },
                 type: 'scatter'
+            },
+            {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 1,
+                color: '#888888'
             }
         ]
     });
@@ -628,7 +624,7 @@ function renderChart(data) {
     Highcharts.stockChart('rsi-chart', {
         chart: {
             type: 'line',
-            height: 600
+            height: 800
         },
         title: { text: 'RSI指標' },
         xAxis: {
@@ -638,11 +634,11 @@ function renderChart(data) {
         },
         yAxis: [{
             title: { text: '股價' },
-            height: '60%'
+            height: '40%'
         }, {
             title: { text: 'RSI值' },
-            top: '65%',
-            height: '35%',
+            top: '45%',
+            height: '20%',
             offset: 0,
             plotBands: [{
                 from: 70,
@@ -655,6 +651,11 @@ function renderChart(data) {
                 color: 'rgba(0, 255, 0, 0.1)',
                 label: { text: '超賣區' }
             }]
+        }, {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
+            offset: 0
         }],
         rangeSelector: {
             enabled: true,
@@ -708,6 +709,13 @@ function renderChart(data) {
                     pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
                 },
                 type: 'scatter'
+            },
+            {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 2,
+                color: '#888888'
             }
         ]
     });
@@ -717,7 +725,7 @@ function renderChart(data) {
     Highcharts.stockChart('adx-dmi-chart', {
         chart: {
             type: 'line',
-            height: 600
+            height: 800
         },
         title: { text: 'ADX與DMI指標' },
         xAxis: {
@@ -727,11 +735,16 @@ function renderChart(data) {
         },
         yAxis: [{
             title: { text: '股價' },
-            height: '60%'
+            height: '40%'
         }, {
             title: { text: 'ADX與DMI值' },
-            top: '65%',
-            height: '35%',
+            top: '45%',
+            height: '20%',
+            offset: 0
+        }, {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
             offset: 0
         }],
         rangeSelector: {
@@ -806,6 +819,13 @@ function renderChart(data) {
                     pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
                 },
                 type: 'scatter'
+            },
+            {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 2,
+                color: '#888888'
             }
         ]
     });
@@ -814,7 +834,7 @@ function renderChart(data) {
     Highcharts.stockChart('kline-chart', {
         chart: {
             type: 'line',
-            height: 600
+            height: 800
         },
         title: { text: 'K線型態' },
         xAxis: {
@@ -823,8 +843,8 @@ function renderChart(data) {
             ordinal: false
         },
         yAxis: [{
-            title: { text: '價格' },
-            height: '60%',
+            title: { text: '股價' },
+            height: '40%',
             plotLines: [{
                 value: 15,
                 width: 1,
@@ -832,8 +852,13 @@ function renderChart(data) {
             }]
         }, {
             title: { text: '漲跌幅度' },
-            top: '65%',
-            height: '35%',
+            top: '45%',
+            height: '20%',
+            offset: 0
+        }, {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
             offset: 0
         }],
         rangeSelector: {
@@ -906,6 +931,13 @@ function renderChart(data) {
                     pointFormat: '型態: {point.pattern}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
                 },
                 type: 'scatter'
+            },
+            {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 2,
+                color: '#888888'
             }
         ]
     });

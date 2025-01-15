@@ -65,5 +65,5 @@ def rsi_backtrader(stock_symbol, start_date, end_date, short_rsi, long_rsi, rsi_
 
     # 繪製圖表並保存到文件
     fig = cerebro.plot()[0][0]  # 獲取圖表 figure
-    fig.savefig('/home/ouvic/Eco_Web/backtrader_data/backtest_result.png')  # 保存圖表為 PNG 文件
+    fig.savefig('./backtest_result.png')  # 保存圖表為 PNG 文件
     return fig

@@ -26,6 +26,7 @@ document.getElementById('search-button').addEventListener('click', function () {
                     ceiling_price: data.ceiling_price,
                     floor_price: data.floor_price,
                     candlestick_data: data.candlestick_data,
+                    volume_data: data.volume_data,
                     signals: data.signals
                 };
                 console.log(chartData);
@@ -59,7 +60,7 @@ function renderChart(data) {
     Highcharts.stockChart('ceiling_floor-chart', {
         chart: {
             type: 'line',
-            height: 600
+            height: 800
         },
         title: { text: '天花板地板線' },
         xAxis: {
@@ -68,8 +69,8 @@ function renderChart(data) {
             ordinal: false
         },
         yAxis: [{
-            title: { text: '價格' },
-            height: '60%',
+            title: { text: '股價' },
+            height: '40%',
             plotLines: [{
                 value: 15,
                 width: 1,
@@ -77,8 +78,13 @@ function renderChart(data) {
             }]
         }, {
             title: { text: '漲跌幅度' },
-            top: '65%',
-            height: '35%',
+            top: '45%',
+            height: '20%',
+            offset: 0
+        }, {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
             offset: 0
         }],
         rangeSelector: {
@@ -161,6 +167,13 @@ function renderChart(data) {
                     return [value[0], ((currClose - prevClose) / prevClose) * 100];
                 }),
                 yAxis: 1
+            },
+            {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 2,
+                color: '#888888'
             },
             {
                 name: '天花板地板進出場訊號',

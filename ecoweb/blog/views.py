@@ -9,7 +9,6 @@ from django.utils.formats import date_format
 import yfinance as yf
 import pandas as pd
 import numpy as np
-import pandas_ta as ta
 
 import json
 from datetime import datetime, date, timedelta

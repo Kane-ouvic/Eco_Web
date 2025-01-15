@@ -22,6 +22,7 @@ document.getElementById('search-button').addEventListener('click', function () {
             if (data.success) {
                 const chartData = {
                     candlestick_data: data.candlestick_data,
+                    volume_data: data.volume_data,
                     rsi: data.rsi,
                     adx: data.adx,
                     plus_di: data.plus_di,
@@ -86,7 +87,7 @@ function renderChart(data) {
     Highcharts.stockChart('rsi-chart', {
         chart: {
             type: 'line',
-            height: 600
+            height: 800
         },
         title: { text: 'RSI指標' },
         xAxis: {
@@ -96,11 +97,11 @@ function renderChart(data) {
         },
         yAxis: [{
             title: { text: '股價' },
-            height: '60%'
+            height: '40%'
         }, {
             title: { text: 'RSI值' },
-            top: '65%',
-            height: '35%',
+            top: '45%',
+            height: '20%',
             offset: 0,
             plotBands: [{
                 from: 70,
@@ -113,6 +114,11 @@ function renderChart(data) {
                 color: 'rgba(0, 255, 0, 0.1)',
                 label: { text: '超賣區' }
             }]
+        }, {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
+            offset: 0
         }],
         rangeSelector: {
             enabled: true,
@@ -166,6 +172,13 @@ function renderChart(data) {
                     pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
                 },
                 type: 'scatter'
+            },
+            {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 2,
+                color: '#888888'
             }
         ]
     });
@@ -174,7 +187,7 @@ function renderChart(data) {
     Highcharts.stockChart('adx-dmi-chart', {
         chart: {
             type: 'line',
-            height: 600
+            height: 800
         },
         title: { text: 'ADX與DMI指標' },
         xAxis: {
@@ -184,11 +197,16 @@ function renderChart(data) {
         },
         yAxis: [{
             title: { text: '股價' },
-            height: '60%'
+            height: '40%'
         }, {
             title: { text: 'ADX與DMI值' },
-            top: '65%',
-            height: '35%',
+            top: '45%',
+            height: '20%',
+            offset: 0
+        }, {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
             offset: 0
         }],
         rangeSelector: {
@@ -263,6 +281,13 @@ function renderChart(data) {
                     pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
                 },
                 type: 'scatter'
+            },
+            {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 2,
+                color: '#888888'
             }
         ]
     });

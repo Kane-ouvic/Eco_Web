@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 import yfinance as yf
 import pandas as pd
 import numpy as np
-import pandas_ta as ta
 
 import json
 from datetime import datetime, date, timedelta

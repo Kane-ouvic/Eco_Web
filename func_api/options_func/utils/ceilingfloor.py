@@ -14,10 +14,12 @@ def ceilingfloor(stock_code, start_date, end_date, ma_length, ma_type, method):
         ma = talib.WMA(stock['Close'], timeperiod=ma_length)
         
     candlestick_data = []
+    volume_data = []
     for i, row in stock.iterrows():
         try:
             timestamp = int(i.timestamp() * 1000)
             candlestick_data.append([timestamp, float(row['Open']), float(row['High']), float(row['Low']), float(row['Close'])])
+            volume_data.append([timestamp, float(row['Volume'])])
         except Exception as e:
             print(f"處理資料時發生錯誤: {e}")
             print(f"問題資料: timestamp={i}, row={row}")
@@ -89,7 +91,7 @@ def ceilingfloor(stock_code, start_date, end_date, ma_length, ma_type, method):
             ceiling_price = floor_price = ma
             print("無法計算天花板地板線 - 資料不足")
             
-        
+    
         
     # 找出突破訊號
     signals = []
@@ -103,4 +105,4 @@ def ceilingfloor(stock_code, start_date, end_date, ma_length, ma_type, method):
             signals.append([timestamp, stock['Close'][i], 'buy', actual_time])  # -1代表突破地板
     
     
-    return ma, ceiling_price, floor_price, candlestick_data, signals
+    return ma, ceiling_price, floor_price, candlestick_data, volume_data, signals

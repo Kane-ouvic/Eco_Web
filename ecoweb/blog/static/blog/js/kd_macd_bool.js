@@ -30,6 +30,7 @@ document.getElementById('search-button').addEventListener('click', function () {
                 const chartData = {
                     ma: data.ma,
                     candlestick_data: data.candlestick_data,
+                    volume_data: data.volume_data,
                     kd_K: data.kd_K,
                     kd_D: data.kd_D,
                     macd_data: data.macd_data,
@@ -98,7 +99,7 @@ function renderChart(data) {
     Highcharts.stockChart('kd-chart', {
         chart: {
             type: 'line',
-            height: 600
+            height: 800
         },
         title: { text: 'KD線' },
         xAxis: {
@@ -108,11 +109,11 @@ function renderChart(data) {
         },
         yAxis: [{
             title: { text: '股價' },
-            height: '60%'
+            height: '40%'
         }, {
             title: { text: 'KD值' },
-            top: '65%',
-            height: '50%',
+            top: '45%',
+            height: '20%',
             offset: 0,
             plotBands: [{
                 from: 80,
@@ -140,6 +141,12 @@ function renderChart(data) {
                 color: '#00FF00',
                 dashStyle: 'dash'
             }]
+        },
+        {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
+            offset: 0
         }],
         rangeSelector: {
             enabled: true,
@@ -211,6 +218,13 @@ function renderChart(data) {
                     pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
                 },
                 type: 'scatter'
+            },
+            {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 2,
+                color: '#888888'
             }
         ]
     });
@@ -219,7 +233,7 @@ function renderChart(data) {
     Highcharts.stockChart('macd-chart', {
         chart: {
             type: 'line',
-            height: 600
+            height: 800
         },
         title: {
             text: 'MACD指標'
@@ -235,13 +249,18 @@ function renderChart(data) {
             title: {
                 text: '股價'
             },
-            height: '60%'
+            height: '40%'
         }, {
             title: {
                 text: 'MACD'
             },
-            top: '65%',
-            height: '35%',
+            top: '45%',
+            height: '20%',
+            offset: 0
+        }, {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
             offset: 0
         }],
         rangeSelector: {
@@ -327,6 +346,13 @@ function renderChart(data) {
                     pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
                 },
                 type: 'scatter'
+            },
+            {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 2,
+                color: '#888888'
             }
         ]
     });
@@ -345,12 +371,17 @@ function renderChart(data) {
         },
         yAxis: [{
             title: { text: '價格' },
-            height: '100%',
+            height: '70%',
             plotLines: [{
                 value: 15,
                 width: 1,
                 color: '#808080'
             }]
+        }, {
+            title: { text: '成交量' },
+            top: '70%',
+            height: '30%',
+            offset: 0
         }],
         rangeSelector: {
             enabled: true,
@@ -428,6 +459,13 @@ function renderChart(data) {
                     pointFormat: 'action: {point.action}<br/>時間: {point.additionalInfo}<br/>價格: {point.y}'
                 },
                 type: 'scatter'
+            },
+            {
+                type: 'column',
+                name: '成交量',
+                data: data.volume_data,
+                yAxis: 1,
+                color: '#888888'
             }
         ]
     });
