@@ -1,15 +1,6 @@
 # 使用官方 Python 映像作為基礎映像
 FROM python:3.9
 
-# 安裝系統依賴 (包含 TA-Lib 開發套件)
-RUN apt-get update && \
-    apt-get install -y build-essential wget git && \
-    wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
-    tar -xzvf ta-lib-0.4.0-src.tar.gz && \
-    cd ta-lib && \
-    ./configure --prefix=/usr && \
-    make && make install && \
-    cd .. && rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
 
 # 設定工作目錄
 WORKDIR /app

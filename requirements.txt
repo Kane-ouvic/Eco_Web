@@ -47,7 +47,6 @@ six
 soupsieve==2.6
 sqlparse==0.5.1
 tk==0.1.0
-ta-lib
 tqdm==4.67.1
 tzdata==2024.2
 urllib3==2.2.3

@@ -1,42 +1,24 @@
-# 使用官方 Python 3.9 作為基礎映像
+# 使用官方 Python 映像作為基礎映像
 FROM python:3.9
 
-# 安裝系統依賴：build-essential、python3-dev、libatlas-base-dev (TA-Lib 需要用到)
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
-    wget \
-    python3-dev \
-    libatlas-base-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# 下載並編譯 TA-Lib C 函式庫
-# 版本 0.4.0 下載位置: http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
-RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
-    tar -xzvf ta-lib-0.4.0-src.tar.gz && \
-    cd ta-lib && \
-    ./configure --prefix=/usr && \
-    make && make install && \
-    cd .. && rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
 
 # 設定工作目錄
 WORKDIR /app
 
-# 複製 requirements.txt 並安裝 Python 依賴 (包含 TA-Lib Python 介面)
+# 複製 requirements.txt 並安裝 Python 依賴
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 複製程式碼到容器
-# 根據你的專案結構，以下示範將 func_api/ 與 config/ 放進 /app
+# 複製 func_api 和 config 目錄
 COPY func_api/ func_api/
 COPY config/ config/
 COPY .env .env
 
-# 切換到 Django 專案根目錄 (func_api)，以便執行 manage.py
+# 設定工作目錄到 func_api
 WORKDIR /app/func_api
 
-# 開放應用程式運行的端口 (自訂為 55556)
+# 開放應用程式運行的端口
 EXPOSE 55556
 
-# 最後啟動 Django 開發伺服器
+# 啟動 Django 應用程式
 CMD ["python", "manage.py", "runserver", "0.0.0.0:55556"]
