@@ -203,8 +203,8 @@ class StockSelectionView(APIView):
         stock_price = request.data.get('closingPrice')
         roa = request.data.get('roa')
 
-        # token = os.getenv('FIN_TOKEN')
-        token = '9KabngzgazwRsIf2lE3zr2qHHaCXRn/+qBTHJ5lSdCdrjKIgFQfGFg/SuQVA5htW#free'
+        token = os.getenv('FIN_TOKEN')
+
         if not token:
             return Response({'error': 'FIN_TOKEN 未設置'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
