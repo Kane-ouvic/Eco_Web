@@ -254,24 +254,7 @@ $(document).ready(function () {
     }
 
     function drawCharts_entry_exit(data, trackDetails) {
-        // function prepareData(dates, values) {
-        //     return dates.map((timestamp, index) => [new Date(timestamp).getTime(), (values[index] === -2147483648) ? null : values[index]]);
-        // }
 
-        // let candlestickData = prepareData(response.dates, response.candlestick_data);
-        // let maData = prepareData(response.dates, response.ma);
-        // let ceilingPriceData = prepareData(response.dates, response.ceiling_price);
-        // let floorPriceData = prepareData(response.dates, response.floor_price);
-        // let ceilingSignals = response.ceilingfloor_signals.map(signal => ({
-        //     x: new Date(signal[0]).getTime(),
-        //     y: signal[1],
-        //     action: signal[2],
-        //     additionalInfo: signal[3],
-        //     marker: {
-        //         symbol: signal[2] === 'buy' ? 'triangle' : 'triangle-down',
-        //         fillColor: signal[2] === 'buy' ? '#000000' : '#000000'
-        //     }
-        // }));
 
         // 繪製天花板地板線圖表
         Highcharts.stockChart('ceiling_floor-chart', {

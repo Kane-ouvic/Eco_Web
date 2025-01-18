@@ -73,7 +73,6 @@ def calculate_strategy(request):
             missing_params = [param for param in ['stock1', 'stock2', 'start_date', 'end_date', 'n_std', 'window_size'] if not data.get(param)]
             return Response({'error': f'Missing parameters: {", ".join(missing_params)}'}, status=400)
 
-        # print("--------------------------")
         # 轉換參數為適當的類型
         try:
             n_std = int(n_std)
@@ -81,7 +80,6 @@ def calculate_strategy(request):
         except ValueError as e:
             return Response({'error': f'Invalid value for n_std or window_size: {str(e)}'}, status=400)
         context = distance_method(stock1, stock2, start_date, end_date, n_std, window_size)
-        # print("--------------------------")
         
         return Response(context)
     except json.JSONDecodeError:
@@ -123,7 +121,6 @@ class TestView(APIView):
 
 class RsiBacktraderView(APIView):
     def post(self, request):
-        print(request.data)
         stock_symbol = request.data.get('stockCode')
         start_date = request.data.get('startDate')
         end_date = request.data.get('endDate')
@@ -138,14 +135,12 @@ class RsiBacktraderView(APIView):
         response = HttpResponse(content_type='image/png')
         result.savefig(response, format='png')
         response['Content-Disposition'] = 'inline; filename="backtest_result.png"'
-        print(response)
         return response
 
 class AddTrackView(APIView):
     def post(self, request):
         try:
             # 從請求中獲取數據
-            print(f"Received data: {request.data}")
             method = request.data.get('method', 'distance')  # 默認為 'distance'
             stock1 = request.data.get('stock1')
             stock2 = request.data.get('stock2')
@@ -328,7 +323,6 @@ class KdMacdBoolView(APIView):
         nbdevup = int(request.data.get('nbdevup'))
         nbdevdn = int(request.data.get('nbdevdn'))
         print(stock_code, start_date, end_date)
-        # stock = yf.download(f"{stock_code}.TW", start=start_date)
         
         # # 初始化 macd 字典
         kd = {}
@@ -385,7 +379,6 @@ class EntryExitView(APIView):
         stock_code = request.data.get('stockCode')
         start_date = request.data.get('startDate')
         end_date = request.data.get('endDate')
-        # strategy = request.data.get('strategy')
         ma_length = int(request.data.get('maLength'))
         ma_type = request.data.get('maType')
         method = request.data.get('method')

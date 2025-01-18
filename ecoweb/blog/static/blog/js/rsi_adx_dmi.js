@@ -67,18 +67,6 @@ function renderInitialChart() {
             color: '#000000'
         }]
     });
-    // Highcharts.stockChart('dmi-chart', {
-    //     chart: { type: 'line' },
-    //     title: { text: 'DMI線結果' },
-    //     xAxis: { categories: ['DMI'] },
-    //     yAxis: { title: { text: '價格範圍' } },
-    //     series: [{
-    //         name: '',
-    //         data: [0],
-    //         type: 'line',
-    //         color: '#000000'
-    //     }]
-    // });
 }
 
 function renderChart(data) {
@@ -291,75 +279,5 @@ function renderChart(data) {
             }
         ]
     });
-
-    // 繪製DMI圖表
-    // Highcharts.stockChart('dmi-chart', {
-    //     chart: {
-    //         type: 'line',
-    //         height: 600
-    //     },
-    //     title: { text: 'DMI指標' },
-    //     xAxis: {
-    //         type: 'datetime',
-    //         title: { text: '時間' },
-    //         ordinal: false
-    //     },
-    //     yAxis: [{
-    //         title: { text: '股價' },
-    //         height: '60%'
-    //     }, {
-    //         title: { text: 'DMI值' },
-    //         top: '65%',
-    //         height: '35%',
-    //         offset: 0
-    //     }],
-    //     rangeSelector: {
-    //         enabled: true,
-    //         selected: 4,
-    //         inputDateFormat: '%Y-%m-%d',
-    //         inputEditDateFormat: '%Y-%m-%d',
-    //         buttonTheme: { width: 60 }
-    //     },
-    //     navigator: {
-    //         enabled: true,
-    //         height: 50
-    //     },
-    //     scrollbar: { enabled: true },
-    //     plotOptions: {
-    //         line: { marker: { enabled: false } }
-    //     },
-    //     series: [
-    //         {
-    //             type: 'candlestick',
-    //             name: '股價',
-    //             data: data.candlestick_data,
-    //             yAxis: 0,
-    //             color: '#00FF00',
-    //             upColor: '#FF0000',
-    //             lineColor: '#00FF00',
-    //             upLineColor: '#FF0000'
-    //         },
-    //         {
-    //             name: '+DI',
-    //             data: data.plus_di.map((value, index) => [
-    //                 data.candlestick_data[index][0],
-    //                 value === -2147483648 ? null : value
-    //             ]),
-    //             color: '#FF0000',
-    //             lineWidth: 2,
-    //             yAxis: 1
-    //         },
-    //         {
-    //             name: '-DI',
-    //             data: data.minus_di.map((value, index) => [
-    //                 data.candlestick_data[index][0],
-    //                 value === -2147483648 ? null : value
-    //             ]),
-    //             color: '#00FF00',
-    //             lineWidth: 2,
-    //             yAxis: 1
-    //         }
-    //     ]
-    // });
 
 }

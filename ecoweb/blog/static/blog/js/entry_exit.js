@@ -92,18 +92,6 @@ function renderInitialChart() {
             color: '#000000'
         }]
     });
-    // Highcharts.stockChart('dmi-chart', {
-    //     chart: { type: 'line' },
-    //     title: { text: 'DMI線結果' },
-    //     xAxis: { categories: ['DMI'] },
-    //     yAxis: { title: { text: '價格範圍' } },
-    //     series: [{
-    //         name: '',
-    //         data: [0],
-    //         type: 'line',
-    //         color: '#000000'
-    //     }]
-    // });
 }
 
 function renderChart(data) {

@@ -4,22 +4,6 @@ document.addEventListener('DOMContentLoaded', function () {
     renderInitialChart();
 });
 
-// document.getElementById('search-button').addEventListener('click', function () {
-//     const stockCode = document.getElementById('stockCode').value;
-//     const year = document.getElementById('year').value;
-//     // 模擬API回傳資料
-//     const data = {
-//         latest_price: 1037.5,
-//         methods: [
-//             { name: '股利法', cheap: 200, fair: 400, expensive: 600 },
-//             { name: '高低價法', cheap: 250, fair: 450, expensive: 650 },
-//             { name: '本淨比法', cheap: 300, fair: 500, expensive: 700 },
-//             { name: '本益比法', cheap: 350, fair: 550, expensive: 750 }
-//         ]
-//     };
-//     renderChart(data);
-// });
-
 document.getElementById('search-button').addEventListener('click', function () {
     const stockCode = document.getElementById('stockCode').value;
     const year = document.getElementById('year').value;

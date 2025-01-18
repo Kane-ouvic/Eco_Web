@@ -186,45 +186,4 @@ function renderChart(data) {
             }
         ]
     });
-    // Highcharts.chart('pe-ratio-chart-2', {
-    //     chart: {
-    //         type: 'arearange'
-    //     },
-    //     title: {
-    //         text: '本益比河流圖'
-    //     },
-    //     xAxis: {
-    //         categories: data.methods.map(m => m.name)
-    //     },
-    //     yAxis: {
-    //         title: {
-    //             text: '價格範圍'
-    //         }
-    //     },
-    //     plotOptions: {
-    //         arearange: {
-    //             fillOpacity: 0.3,
-    //             lineWidth: 0
-    //         }
-    //     },
-    //     series: [{
-    //         name: '便宜區間',
-    //         data: data.methods.map(m => [0, m.cheap]),
-    //         color: '#FFFF00'
-    //     }, {
-    //         name: '合理區間',
-    //         data: data.methods.map(m => [m.cheap, m.cheap + m.fair]),
-    //         color: '#00FF00'
-    //     }, {
-    //         name: '昂貴區間',
-    //         data: data.methods.map(m => [m.cheap + m.fair, m.cheap + m.fair + m.expensive]),
-    //         color: '#FF0000'
-    //     }, {
-    //         name: '最新價格',
-    //         type: 'line',
-    //         data: data.methods.map(() => data.latest_price),
-    //         color: '#000000',
-    //         lineWidth: 2
-    //     }]
-    // });
 }
